@@ -19,5 +19,5 @@ from solicitacoes.views import Solicitacao
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('login.urls')),
-    path('solicitacoes',  Solicitacao),
+    path('', include('solicitacoes.urls')),
 ]

@@ -97,7 +97,7 @@
                                     <div id="campos_pasta">
                                         <div class="campo_pasta">
                                             <div class="input-group">
-                                                <input type="text" class="form-control mb-2" name="nome_pasta[]" placeholder="Nome da Pasta">
+                                                <input type="text" class="form-control mb-2" name="pastas" placeholder="Nome da Pasta">
                                            
                                             </div>
                                         </div>
@@ -110,7 +110,7 @@
                                         {% for usuario in usuarios %}
                                         <div class="col-3 mb-3">
                                             <div class="form-check form-checkbox-dark mb-2">
-                                                <input type="checkbox" class="form-check-input" id="customCheckcolor{{usuario.id}}" name="checkboxes" value="{{usuario.id}}">
+                                                <input type="checkbox" class="form-check-input" id="customCheckcolor{{usuario.id}}" name="usuarios" value="{{usuario.id}}">
                                                 <label class="form-check-label" for="customCheckcolor{{usuario.id}}">{{usuario.first_name}}</label>
                                             </div>
                                         </div>
@@ -172,7 +172,7 @@ function adicionarCampo() {
             novoCampo.innerHTML = `
                 <div class="campo_pasta">
                     <div class="input-group mb-2">
-                        <input type="text" class="form-control " name="nome_pasta[]" placeholder="Nome da Pasta">
+                        <input type="text" class="form-control " name="pastas" placeholder="Nome da Pasta">
                         <div class="input-group-append">
                             <button style="padding: 10px;" type="button" class="btn btn-danger btn-sm" onclick="removerCampo(this)"><i class="ri-close-circle-line"></i></button>
                         </div>
@@ -185,10 +185,23 @@ function removerCampo(elemento) {
             // Remove o elemento pai do botão (ou seja, o campo de entrada e o botão de remoção)
             elemento.closest('.campo_pasta').remove();
         }
+
 function RealizaSolicitacao(){
     var inputData = document.getElementById("prazo_entrega").value;
-    var dataInserida = new Date(inputData.split("/").reverse().join("-")); // Converter para o formato "yyyy-mm-dd"
+
+    // Separar os componentes da data e criar um objeto Date
+    var partesData = inputData.split("/");
+    var dia = parseInt(partesData[0], 10); // Dia
+    var mes = parseInt(partesData[1], 10) - 1; // Mês (subtraímos 1 porque os meses em JavaScript começam em 0)
+    var ano = parseInt(partesData[2], 10); // Ano
+    var dataInserida = new Date(ano, mes, dia);
+    dataInserida.setHours(0, 0, 0, 0);
+
+    // Criar um objeto Date representando a data atual
     var dataAtual = new Date();
+    dataAtual.setHours(0, 0, 0, 0);
+    console.log(dataAtual)
+    console.log(dataInserida)
 
     // Comparar as datas
     if (dataInserida < dataAtual) {
