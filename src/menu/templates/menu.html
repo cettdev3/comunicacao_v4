@@ -372,13 +372,6 @@
                         <li class="side-nav-title mt-1"> Main</li>
 
                         <li class="side-nav-item">
-                            <a href="/dashboard" class="side-nav-link">
-                                <i class="ri-dashboard-2-fill"></i>
-                                <span> Dashboard </span>
-                            </a>
-                        </li>
-
-                        <li class="side-nav-item">
                             <a href="/solicitacoes" class="side-nav-link">
                                 <i class="ri-draft-fill"></i>
                                 <span> Solicitações </span>
@@ -391,33 +384,7 @@
                                 <span> Meus Jobs {{solicitacao.perfil.cargo}}</span>
                             </a>
                         </li>
-                        {% if perm < 3 %}
-
-                     
-
-                        <li class="side-nav-item">
-                            <a href="/all-demands" class="side-nav-link">
-                                <i class="ri-todo-line"></i>
-                                <span> Todas as Demandas </span>
-                            </a>
-                        </li>
                         
-                        <li class="side-nav-item">
-                            <a href="/all-jobs" class="side-nav-link">
-                                <i class="ri-todo-line"></i>
-                                <span> Todos os Jobs </span>
-                            </a>
-                        </li>
-                       
-                        <li class="side-nav-item">
-                          <a href="/gerir-time" class="side-nav-link">
-                              <i class="ri-group-2-line"></i>
-                              <span> Gerir Time </span>
-                          </a>
-                      </li>
-                      {% endif %}
-
-
 
                     </ul>
                     <!--- End Sidemenu -->

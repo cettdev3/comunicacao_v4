@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 import json
 from django.middleware.csrf import get_token
 from django.http import HttpResponse
-
+from perfil.models import Perfil
 def decrypt(ciphertext, key):
     alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     cipher = "".join(key)
@@ -58,7 +58,11 @@ def Autenticar(request):
 
         if user is not None:
             login(request, user)
-            return redirect('/dashboard')
+            cargo = Perfil.objects.filter(user_profile_id = request.user.id).values('cargo')
+            if cargo[0]['cargo'] == 1 or cargo[0]['cargo'] == 2:
+                return redirect('/solicitacoes')
+            else:
+                return redirect('/meus-jobs')
         else:
             messages.error(request, ' Usuário/Senha inválidos!')
             return redirect('/')

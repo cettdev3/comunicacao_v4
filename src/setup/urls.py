@@ -15,8 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-
+from solicitacoes.views import Solicitacao
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('login.urls')),
+    path('solicitacoes',  Solicitacao),
 ]

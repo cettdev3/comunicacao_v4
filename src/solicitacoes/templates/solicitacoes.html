@@ -1,0 +1,376 @@
+{% extends 'menu.html' %}
+{% load static %}
+<style>
+.file-icon {
+    font-size: 24px;
+    margin-right: 10px;
+}
+
+.remove-button {
+   
+}
+</style>
+{% block content %}
+
+<div class="content-page">
+    <div class="content">
+
+        <!-- Start Content-->
+        <div class="container-fluid">
+
+            <!-- start page title -->
+            <div class="row">
+                <div class="col-12">
+                    <div class="page-title-box justify-content-between d-flex align-items-md-center flex-md-row flex-column">     
+                        <h4 class="page-title">Solicitações {{solicitacao.demandas}}</h4>
+                        <ol class="breadcrumb m-0">
+                            <li class="breadcrumb-item active">Solicitações</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+            <!-- end page title -->
+
+            <div class="row">
+               
+
+                <div class="col-12">
+                  
+                    <div class="card">
+                        <ul class="list-group list-group-flush">
+
+                            <form id="form_solicitacao" method="POST"  enctype="multipart/form-data">
+                            <li class="list-group-item">
+                                <div class="row">
+                                <div class="col-{% if cargo != 1 %}4{% else %}3{% endif %}">
+                                    <div class="mb-3">
+                                        <label for="titulo" class="form-label">Título: </label>
+                                        <input type="text" id="titulo" name="titulo" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-{% if cargo != 1 %}4{% else %}3{% endif %}">
+                                    <div class="mb-3">
+                                        <label for="prazo_entrega" class="form-label">Prazo de Entrega: </label>
+                                        <input type="text" class="form-control" id="prazo_entrega" name="prazo_entrega" placeholder="Informe o vencimento" data-toggle="input-mask" data-mask-format="00/00/0000" maxlength="10">
+                                    </div>
+                                </div>
+                              
+                                <div class="col-{% if cargo != 1 %}4{% else %}3{% endif %}">
+                                    <div class="mb-3">
+                                        <label for="simpleinput" class="form-label">Prioridade:</label>
+                                        <select class="form-control select2" data-toggle="select2" name="prioridade" id="prioridade">
+                                            <option value="1" selected>NORMAL</option>
+                                            <option value="2">URGENTE</option>
+
+                     
+                                        </select>
+                                    </div>
+                                </div>
+                                {% if cargo == 1 %}
+                                <div class="col-3">
+                                    <div class="mb-3">
+                                        <label for="simpleinput" class="form-label">Solicitar por:</label>
+                                        <select class="form-control select2" data-toggle="select2" name="solicitante" id="solicitante">
+                                            <option value="{{request.user.id}}" selected>Ninguém</option>
+                                            {% for usuario_cordenador in usuarios_cordenadores %}
+                                            <option value="{{usuario_cordenador.id}}">{{usuario_cordenador.first_name}}</option>
+
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+                                </div>
+                                {% endif %}
+                                <div class="col-12">
+                                    <div class="card border-success border">
+                                        <div class="card-body">
+                                            <h5 class="card-title text-success">Briefing</h5>
+                                            <div class="mb-2">
+                                                <textarea id="summernote" name="editordata"></textarea>
+                                                
+                                            </div>
+                                        </div> <!-- end card-body-->
+                                    </div>
+                                </div>
+                                <div class="col-12 mb-3 mt-3">
+                                    <h4 class="card-title text-dark"><i class="ri-folder-2-fill"></i> Cadastrar Pasta <button onclick="adicionarCampo()" style="float: right;" type="button" class="btn btn-dark btn-sm"><i class="ri-folder-2-fill"></i> <span>Adicionar Pasta</span> </button></h4> <hr>
+                  
+                                    <div id="campos_pasta">
+                                        <div class="campo_pasta">
+                                            <div class="input-group">
+                                                <input type="text" class="form-control mb-2" name="nome_pasta[]" placeholder="Nome da Pasta">
+                                           
+                                            </div>
+                                        </div>
+                                    </div>
+                                  
+                                </div>
+                                <div class="col-12 mb-3 mt-3">
+                                    <h4 class="card-title text-dark"><i class="ri-shield-user-fill"></i> Designar Usuários</h4> <hr>
+                                    <div class="row">
+                                        {% for usuario in usuarios %}
+                                        <div class="col-3 mb-3">
+                                            <div class="form-check form-checkbox-dark mb-2">
+                                                <input type="checkbox" class="form-check-input" id="customCheckcolor{{usuario.id}}" name="checkboxes" value="{{usuario.id}}">
+                                                <label class="form-check-label" for="customCheckcolor{{usuario.id}}">{{usuario.first_name}}</label>
+                                            </div>
+                                        </div>
+                                        {% endfor %}
+                                </div>
+                                </div>
+                                
+                                <div class="col-12">
+                                    
+                                </div>
+                                <div class="col-2">
+                                    <label for="fileInput" class="btn btn-info">
+                                        <i class="ri-upload-cloud-line me-1"></i> Anexar Arquivos
+                                      </label>
+                                   
+                                </div> 
+                                <div class="col-8">  
+                                    <input style="width: 100%;" type="file" id="fileInput" class="d-none" multiple onchange="showSelectedFiles()">
+                                    <div class="row" id="fileDisplay"></div>
+                                </div>
+                                <div class="col-2">
+                                    <button onclick="RealizaSolicitacao()" style="width: 100%;" type="button" class="btn btn-info"><i class="ri-rocket-line me-1"></i> <span>Realizar Solicitação</span> </button>
+                                </div>
+                            </div>
+                            </li>
+
+                            </form>
+                        </ul> <!-- end list-->
+                    </div> <!-- end card-->
+
+                
+
+                </div> <!-- end col-->
+            </div>
+            <!-- end row -->
+
+        </div> <!-- container -->
+
+    </div> <!-- content -->
+
+    <!-- Footer Start -->
+    <footer class="footer">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-md-6">
+                    <script>document.write(new Date().getFullYear())</script> © CETT - Comunicação
+                </div>
+               
+            </div>
+        </div>
+    </footer>
+    <!-- end Footer -->
+
+</div>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script>
+function adicionarCampo() {
+    var novoCampo = document.createElement('div');
+            novoCampo.innerHTML = `
+                <div class="campo_pasta">
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control " name="nome_pasta[]" placeholder="Nome da Pasta">
+                        <div class="input-group-append">
+                            <button style="padding: 10px;" type="button" class="btn btn-danger btn-sm" onclick="removerCampo(this)"><i class="ri-close-circle-line"></i></button>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById('campos_pasta').appendChild(novoCampo);
+        }
+
+function removerCampo(elemento) {
+            // Remove o elemento pai do botão (ou seja, o campo de entrada e o botão de remoção)
+            elemento.closest('.campo_pasta').remove();
+        }
+function RealizaSolicitacao(){
+    var inputData = document.getElementById("prazo_entrega").value;
+    var dataInserida = new Date(inputData.split("/").reverse().join("-")); // Converter para o formato "yyyy-mm-dd"
+    var dataAtual = new Date();
+
+    // Comparar as datas
+    if (dataInserida < dataAtual) {
+       
+        Swal.fire({
+            icon: 'error',
+            title: 'Ops!',
+            text: "O prazo de entrega não pode ser menor que a data atual!"
+        });
+} else {
+    var form = document.getElementById("form_solicitacao");
+    var formData = new FormData(form);  // Use FormData para incluir campos de arquivo]
+
+    var fileInput = document.getElementById('fileInput');
+    
+    if (fileInput){
+      for (var i = 0; i < fileInput.files.length; i++) {
+        console.log(fileInput.files[i])
+        formData.append('files[]', fileInput.files[i]);
+    }
+    }
+
+    console.log(formData)
+    Swal.fire({
+        title: 'Realizar Solicitação?',
+        text: 'Deseja realmente realizar esta solicitação? Caso realize não poderá alterar até que a solicitação seja devolvida',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim',
+        cancelButtonText: 'Não'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            var XCSRFToken = '{{ csrf_token }}';
+            const url = "/realizar-solicitacao";
+            
+            // Use a função $.ajax do jQuery para fazer a solicitação AJAX
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: formData,
+                headers: { "X-CSRFToken": XCSRFToken },
+                processData: false,  // Não processar os dados (o FormData já cuida disso)
+                contentType: false,  // Não definir o tipo de conteúdo (o FormData já cuida disso)
+                success: function (data) {
+                  $("#tbl_solicitacoes").html(data);
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Solicitação Realizada!',
+                        text: "A solicitação foi realizada com sucesso!"
+                    }).then((result) => {
+                        // Ação a ser realizada após o botão "OK" ser clicado
+                        if (result.isConfirmed) {
+                            window.location.href = 'solicitacoes';
+                           
+                        }
+                    });
+                },
+                error: function (data) {
+                    console.log(data)
+                    if (data.responseJSON && data.responseJSON.error_message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ops!',
+                            text: data.responseJSON.error_message
+                        });
+                    }
+                }
+            });
+        }
+    });
+    }
+
+    
+}
+
+$(document).ready(function() {
+  $('#summernote').summernote(
+    {
+  toolbar: [
+    ['style', ['bold', 'italic', 'underline', 'clear']],
+    ['font', ['strikethrough', 'superscript', 'subscript']],
+    ['para', ['ul', 'ol']],
+
+    // Outras opções de toolbar que você deseja incluir, mas sem 'link'
+  ],
+  // Outras configurações necessárias para o seu uso
+}
+  );
+});
+
+function showSelectedFiles() {
+            const fileInput = document.getElementById('fileInput');
+            const fileDisplay = document.getElementById('fileDisplay');
+
+            // Limpa a exibição de arquivos anteriores
+            fileDisplay.innerHTML = "";
+
+            const files = fileInput.files;
+            for (let i = 0; i < files.length; i++) {
+                const fileName = files[i].name;
+                const listItem = document.createElement('div');
+                listItem.className = "col-auto";
+                listItem.innerHTML = `
+                    <i class="file-icon ri-upload-cloud-line me-1"></i>
+                    <span style="font-size: 16px;">${fileName}</span>
+                    <i class="remove-button ri-indeterminate-circle-fill" onclick="removeFile(${i})" style="cursor: pointer; color: red; font-size: 20px;"	></i>
+                `;
+                fileDisplay.appendChild(listItem);
+            }
+        }
+
+function removeFile(index) {
+    const fileInput = document.getElementById('fileInput');
+    const files = Array.from(fileInput.files);
+    files.splice(index, 1);
+
+    // Cria um novo input de arquivo e copia os arquivos restantes
+    const newFileInput = document.createElement('input');
+    newFileInput.type = 'file';
+    newFileInput.id = 'fileInput';
+    newFileInput.multiple = true;
+    newFileInput.style.display = 'none';
+    newFileInput.addEventListener('change', showSelectedFiles);
+
+    const dataTransfer = new DataTransfer();
+    files.forEach(file => dataTransfer.items.add(file));
+    newFileInput.files = dataTransfer.files;
+
+    // Substitui o input de arquivo anterior
+    fileInput.parentNode.replaceChild(newFileInput, fileInput);
+
+    // Atualize a lista de arquivos selecionados
+    showSelectedFiles();
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+        // Obtém o campo de data
+        const idSolicitacao = document.getElementById("idSolicitacao");
+        const dataSolicitacao = document.getElementById("data_solicitacao");
+
+        // Adiciona um ouvinte de evento ao campo de data para detectar mudanças
+        idSolicitacao.addEventListener("input", function() {
+            setTimeout(function() {
+                sendFilter();
+            }, 2000);
+        });
+
+        dataSolicitacao.addEventListener("input", function() {
+            setTimeout(function() {
+                sendFilter();
+            }, 2000);
+        });
+
+
+    });
+
+function acessarSolicitacao(solicitacaoId){
+        window.location.href = "/timeline/" + solicitacaoId;
+    }
+
+function retificarSolicitacao(solicitacaoId){
+    const url = '/ajax/ajax-retifica-solicitacao';
+
+    $.ajax({
+        url,
+        type: 'GET',
+        data: { 'solicitacao_id': solicitacaoId },
+        success: function(data) {
+            $("#warning-alert-modal").html(data);
+            $("#warning-alert-modal").modal('show');
+            
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Ops!',
+                text: 'Não foi possível obter resultados!'
+            });
+        }
+    });
+}
+</script>
+{% endblock %}
