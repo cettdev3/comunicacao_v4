@@ -54,6 +54,7 @@ class Demandas(models.Model):
     descricao_entrega = models.TextField(null=False,blank=False,default="Nenhuma Descrição de Entrega")
     data_entrega = models.DateField(default=timezone.now, null=True, blank=True) 
     devolutiva = models.TextField(null=False,blank=False,default="")
+    solicitacao = models.ForeignKey(Solicitacoes,on_delete=models.CASCADE,default=5,related_name='solicitante')
     status = models.IntegerField(choices=choice_status,null=False,blank=False)
 
     def get_status_display(self):

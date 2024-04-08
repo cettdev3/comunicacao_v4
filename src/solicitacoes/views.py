@@ -98,7 +98,7 @@ def Realizar_Solicitacao(request):
 
             #Cria demanda para os usuários
             for usuario in usuarios:
-                demandas = Demandas.objects.create(autor = request.user, status = 1, designante = User.objects.get(id = int(usuario)))
+                demandas = Demandas.objects.create(autor = request.user, status = 1,solicitacao_id = solicitar.id, designante = User.objects.get(id = int(usuario)))
         
         except Exception as e:
              return JsonResponse({"error":True,"error_message": str(e)}, status=400)
