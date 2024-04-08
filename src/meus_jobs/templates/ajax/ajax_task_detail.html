@@ -1,0 +1,735 @@
+{% load static %}
+<div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h4 class="modal-title" id="TaskDetailModalLabel">{{solicitacao.titulo}} {% if solicitacao.prioridade == 1 %}<span class="badge bg-primary ms-2">{{solicitacao.get_prioridade_display}}</span>{% else %}<span class="badge bg-warning ms-2">{{solicitacao.get_prioridade_display}}</span>{% endif %}</h4>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            
+            <div class="p-2">
+              
+                <div class="row" >
+                    <div class="col-md-4">
+                        <div class="mb-4">
+                            <h5>Data de Criação</h5>
+                            <span>{{solicitacao.data_solicitacao|date:"d/m/Y"}} <small class="text-muted">{{solicitacao.data_solicitacao|date:"H:i:s"}}</small></span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-4">
+                            <h5>Prazo de Entrega</h5>
+                            <span>{{solicitacao.prazo_entrega|date:"d/m/Y"}}</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="mb-4" id="tooltip-container">
+                            <h5>Solicitante:</h5>
+                            <div id="tooltip-container3">
+                                {% if solicitacao.perfil_solicitante.foto %}
+                                    <img src="{{solicitacao.perfil_solicitante.foto}}" id="avatar_topo" alt="user-image" width="36" height="36" class="avatar-xs rounded-circle me-1"> {{solicitacao.autor.first_name}}
+                                {% else %}
+                                    <img src="https://ui-avatars.com/api/?name={{solicitacao.autor.first_name}}&color=7F9CF5&background=EBF4FF" id="avatar_topo" alt="user-image" width="36" height="36" class="avatar-xs rounded-circle me-1"> {{solicitacao.autor.first_name}}
+                                {% endif %}
+                          
+                                </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="mb-2">
+                            <div class="card border-primary border">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">Briefing</h5>
+                                    <span>{{solicitacao.briefing|safe}}</span>
+
+                                </div> <!-- end card-body-->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="mb-1">
+                            <div class="card border-primary border">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">Anexos da Solicitação</h5>
+                                    {% for arquivo in solicitacao.arquivos %}
+                                    <div class="col-12">
+                                        <div class="mb-3">
+                                            <a style="width: 100%;" href="{{arquivo.rota}}" class="btn btn-soft-secondary">
+                                                <i class="ri-file-fill"></i><br>{{ arquivo.rota|cut:"/media/" }}
+                                            </a>
+                                        </div>
+                                    </div>
+                                    {% endfor %}
+
+                                </div> <!-- end card-body-->
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-12">
+                        <div class="mb-1">
+                            <div class="card border-warning border">
+                                <div class="card-body">
+                                    <h5 class="card-title text-warning mb-4">Demandas Relacionadas</h5>
+                                    {% for demanda in demandas %}
+                                    <div class="col-12">
+                                    
+                                            <div class="row">
+                                                <div class="col-12">
+                                                    <table style="width: 100%;">
+                                                        <tbody>
+                                                            <tr >
+                                                                <td>
+                                                                    {% if solicitacao.perfil_solicitante.foto %}
+                                                                        <img src="{{solicitacao.perfil_solicitante.foto}}" id="avatar_topo" alt="user-image" width="36" height="36" class="avatar-xs rounded-circle me-1"> 
+                                                                    {% else %}
+                                                                        <img src="https://ui-avatars.com/api/?name={{demanda.designante.first_name}}&color=7F9CF5&background=EBF4FF" id="avatar_topo" alt="user-image" width="36" height="36" class="avatar-xs rounded-circle me-1"> <b>{{demanda.designante.first_name}}</b>
+                                                                    {% endif %}
+                                                                </td>
+                                                                <td style="text-align: right;">
+                                                                    {% if demanda.status == 1 %}
+                                                                    <span class="badge bg-warning rounded-pill">{{demanda.get_status_display}}</span>
+                                                                    {% elif demanda.status == 2 %}
+                                                                    <span class="badge bg-primary rounded-pill">{{demanda.get_status_display}}</span>
+                                                                    {% elif demanda.status == 3 %}
+                                                                    <span class="badge bg-danger rounded-pill">{{demanda.get_status_display}}</span>
+                                                                    {% elif demanda.status == 4 %}
+                                                                    <span class="badge bg-success rounded-pill">{{demanda.get_status_display}}</span>
+                                                                    {% endif %}
+                                                                    </td>
+                                                            </tr>
+                                                          
+                                                            <tr>
+                                                                <td colspan="2" class="mt-4">
+                                                                   
+                                                                    {% if demanda.descricao_entrega == "Nenhuma Descrição de Entrega" and demanda.designante_id == request.user.id and demanda.status == 1 %}
+                                                                    <div style="background-color: rgba(113, 255, 108, 0.438);" >
+                                                                    <form id="formRealizaEntrega_{{forloop.counter}}"  method="POST" enctype="multipart/form-data">
+                                                                        <div class="row d-flex align-items-center justify-content-center">
+                                                                       
+                                                                            <div class="col-12 col-sm-12 col-md-12" style="text-align: center;">
+                                                                                <label style="width: 100%;" for="files{{forloop.counter}}" class="btn btn-primary">
+                                                                                    <i class="ri-file-fill"></i> ESCOLHER ARQUIVOS
+                                                                                </label>
+                                                                            </div>
+                                                                           
+                                                                            
+                                                                                <input style="width: 100%;" type="file" name="files{{forloop.counter}}" id="files{{forloop.counter}}" class="d-none" multiple onchange="showSelectedFilesDinamic('{{forloop.counter}}')">
+                                                                                <div  class="row mt-2" id="fileDisplay{{forloop.counter}}"></div>
+                                                                      
+                                                                        </div>
+                                                                        <textarea class="summernote"  id="summernote" name="editordata"></textarea>
+                                                                        <hr>
+                                                                        <button onclick="concluirDemanda('{{demanda.id}}','formRealizaEntrega_{{forloop.counter}}','files{{forloop.counter}}')" style="width: 100%;" type="button" class="btn btn-success"><i class="ri-checkbox-circle-line me-1"></i> <span> Concluir Demanda</span> </button>
+                                                                        </form>
+                                                                    </div>
+                                                                    {% else %}
+                                                                        <span>{{ demanda.descricao_entrega|safe }}</span>
+                                                                    {% endif %}
+
+                                                                    {% if demanda.demandas_arquivos %}
+                                                  
+                                                                        {% for arquivo in demanda.demandas_arquivos %}
+                                                                        <div class="col-12">
+                                                                            <div class="mb-3">
+                                                                                <a style="width: 100%;" href="{{arquivo.rota}}" class="btn btn-soft-secondary">
+                                                                                    <i class="ri-file-fill"></i><br>{{ arquivo.rota|cut:"/media/" }}
+                                                                                </a>
+                                                                            </div>
+                                                                        </div>
+                                                                        {% endfor %}
+                                                                    {% endif %}
+                                                                
+                                                                </td>
+                                                            </tr>
+                                                        
+                                                        </tbody>
+                                                    </table>
+                                                    
+
+                                                <hr>
+
+                                                </div>
+                                            </div>
+                                       
+                                    </div>
+                                    {% endfor %}
+
+                                </div> <!-- end card-body-->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <!-- <ul class="nav nav-tabs nav-bordered mb-3">
+                    <li class="nav-item">
+                        <a href="#home-b1" data-bs-toggle="tab" aria-expanded="false" class="nav-link active">
+                            Comentários
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="#profile-b1" data-bs-toggle="tab" aria-expanded="true" class="nav-link">
+                            Arquivos
+                        </a>
+                    </li>
+                </ul> -->
+
+                <!-- <div class="tab-content">
+                    <div class="tab-pane show active" id="home-b1">
+                        <textarea class="form-control mb-2" placeholder="Escreva seu comentário" id="example-textarea" rows="3"></textarea>
+                        <div class="text-end">
+                            <div class="btn-group mb-2 d-none d-sm-inline-block">
+                                <button type="button" class="btn btn-link btn-sm text-muted fs-18"><i class="ri-attachment-2"></i></button>
+                            </div>
+                            <div class="btn-group mb-2 d-none d-sm-inline-block">
+                                <button type="button" class="btn btn-primary btn-sm">Comentar</button>
+                            </div>
+                        </div>
+
+                        <div class="d-flex mt-2">
+                            <img class="me-3 avatar-sm rounded-circle" src="{% static 'layouts/assets/images/users/avatar-3.jpg' %}" alt="Generic placeholder image">
+                            <div class="w-100">
+                                <h5 class="mt-0">Jeremy Tomlinson</h5>
+                                Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in
+                                vulputate at, tempus viverra turpis.
+
+                            </div>
+                            
+                        </div>
+                        <hr>
+                        
+                        <div class="d-flex mt-2">
+                            <img class="me-3 avatar-sm rounded-circle" src="{% static 'layouts/assets/images/users/avatar-2.jpg' %}" alt="Generic placeholder image">
+                            <div class="w-100">
+                                <h5 class="mt-0">Jeremy Tomlinson</h5>
+                                Cras sit amet nibh libero, in gravida nulla. Nulla vel metus scelerisque ante sollicitudin. Cras purus odio, vestibulum in
+                                vulputate at, tempus viverra turpis.
+
+                            </div>
+                            
+                        </div>
+
+                    </div>
+                    <div class="tab-pane" id="profile-b1">
+                        <div class="card mb-1 shadow-none border">
+                            <div class="p-2">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <div class="avatar-sm">
+                                            <span class="avatar-title rounded">
+                                                .ZIP
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col ps-0">
+                                        <a href="javascript:void(0);" class="text-muted fw-bold">-admin-design.zip</a>
+                                        <p class="mb-0">2.3 MB</p>
+                                    </div>
+                                    <div class="col-auto">
+                    
+                                        <a href="javascript:void(0);" class="btn btn-link btn-lg text-muted">
+                                            <i class="ri-download-2-line"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-1 shadow-none border">
+                            <div class="p-2">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <img src="{% static 'layouts/assets/images/small/small-1.jpg' %}" class="avatar-sm rounded" alt="file-image" />
+                                    </div>
+                                    <div class="col ps-0">
+                                        <a href="javascript:void(0);" class="text-muted fw-bold">Dashboard-design.jpg</a>
+                                        <p class="mb-0">3.25 MB</p>
+                                    </div>
+                                    <div class="col-auto">
+                           
+                                        <a href="javascript:void(0);" class="btn btn-link btn-lg text-muted">
+                                            <i class="ri-download-2-line"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card mb-0 shadow-none border">
+                            <div class="p-2">
+                                <div class="row align-items-center">
+                                    <div class="col-auto">
+                                        <div class="avatar-sm">
+                                            <span class="avatar-title bg-secondary rounded">
+                                                .MP4
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="col ps-0">
+                                        <a href="javascript:void(0);" class="text-muted fw-bold">Admin-bug-report.mp4</a>
+                                        <p class="mb-0">7.05 MB</p>
+                                    </div>
+                                    <div class="col-auto">
+                              
+                                        <a href="javascript:void(0);" class="btn btn-link btn-lg text-muted">
+                                            <i class="ri-download-2-line"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        
+                    </div>
+                </div> -->
+
+            </div> 
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+
+function RemoveArquivos(file_id){
+    var XCSRFToken = '{{ csrf_token }}';
+    
+    Swal.fire({
+        title: 'Remover Arquivo da Solicitação',
+        text: 'Deseja realmente este arquivo desta solicitação? ',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim',
+        cancelButtonText: 'Não'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = "/ajax/remove-file";
+
+           
+            
+            // Use a função $.ajax do jQuery para fazer a solicitação AJAX
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {'arquivo_id':file_id,},
+                headers: { "X-CSRFToken": XCSRFToken },
+                success: function (data) {
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Arquivo Removido!',
+                        text: "Arquivo foi removido da solicitação!",
+                    }).then((result) => {
+                        $("#arquivos_solicitacao").html(data);
+                       
+                    });                                                                                                                                                                            
+                },
+                error: function (data) {
+                    console.log(data)
+                    if (data.responseJSON && data.responseJSON.error_message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ops!',
+                            text: data.responseJSON.error_message
+                        });
+                    }
+                }
+            });
+        }
+    });
+}
+
+function devolveSolicitacao(solicitacaoID){
+    var XCSRFToken = '{{ csrf_token }}';
+    var motivo = document.getElementById('motivo_devolucao_text').value;
+    console.log(solicitacaoID)
+    
+    Swal.fire({
+        title: 'Devolver Solicitação',
+        text: 'Deseja realmente devolver esta solicitação?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim',
+        cancelButtonText: 'Não'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = "/ajax/devolve-solicitacao";
+
+           
+            
+            // Use a função $.ajax do jQuery para fazer a solicitação AJAX
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {'solicitacao_id':solicitacaoID,'motivo':motivo},
+                headers: { "X-CSRFToken": XCSRFToken },
+                success: function (data) {
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Solicitação Devolvida!',
+                        text: "A solicitação foi devolvida com sucesso!",
+                    }).then((result) => {
+                        // Ação a ser realizada após o botão "OK" ser clicado
+                        if (result.isConfirmed) {
+                            location.reload();
+                           
+                           
+                        }
+                    });                                                                                                                                                                            
+                },
+                error: function (data) {
+                    console.log(data)
+                    if (data.responseJSON && data.responseJSON.error_message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ops!',
+                            text: data.responseJSON.error_message
+                        });
+                    }
+                }
+            });
+        }
+    });
+}
+
+function show_devolve_solicitacao(){
+    var elemento = document.getElementById("motivo_devolucao");
+    elemento.style.display = 'block';
+}
+
+function alteraSolicitacao(solicitacaoId){
+    var XCSRFToken = '{{ csrf_token }}';
+    var prazo = document.getElementById('prazo_entrega_edit').value;
+    var briefing = document.getElementById('solicitacaotext').value;
+    var prioridade = document.getElementById('prioridade').value;
+    var form = document.getElementById("form_solicitacao");
+    var formData = new FormData(form);  // Use FormData para incluir campos de arquivo]
+
+    var fileInput = document.getElementById('fileInput');
+    
+    if (fileInput){
+      for (var i = 0; i < fileInput.files.length; i++) {
+        console.log(fileInput.files[i])
+        formData.append('files[]', fileInput.files[i]);
+    }
+    }
+
+    formData.append('prazo', prazo);
+    formData.append('briefing', briefing);
+    formData.append('prioridade', prioridade);
+    formData.append('solicitacaoId', solicitacaoId);
+
+
+    Swal.fire({
+        title: 'Alterar Solicitação',
+        text: 'Deseja realmente alterar esta solicitação? ',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim',
+        cancelButtonText: 'Não'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = "/ajax/altera-solicitacao";
+
+           
+            
+            // Use a função $.ajax do jQuery para fazer a solicitação AJAX
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: formData,
+                headers: { "X-CSRFToken": XCSRFToken },
+                processData: false,  // Não processar os dados (o FormData já cuida disso)
+                contentType: false,  // Não definir o tipo de conteúdo (o FormData já cuida disso)
+                success: function (data) {
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Solicitação Alterada!',
+                        text: "Alteração realizada com sucesso!",
+                    }).then((result) => {
+                        // Ação a ser realizada após o botão "OK" ser clicado
+                        if (result.isConfirmed) {
+                            location.reload();
+                           
+                           
+                        }
+                    });                                                                                                                                                                            
+                },
+                error: function (data) {
+                    console.log(data)
+                    if (data.responseJSON && data.responseJSON.error_message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ops!',
+                            text: data.responseJSON.error_message
+                        });
+                    }
+                }
+            });
+        }
+    });
+}
+
+function designarPessoa(solicitacaoId){
+    var XCSRFToken = '{{ csrf_token }}';
+    var peca = document.getElementById('select2_peca_design').value;
+    var prioridade = document.getElementById('select2_prioridade').value;
+    var usuario = document.getElementById('select2_usuario').value;
+    
+    Swal.fire({
+        title: 'Designar Usuário',
+        text: 'Deseja realmente designar este usuário a esta peça? ',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim',
+        cancelButtonText: 'Não'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = "/ajax/designar-usuario";
+
+           
+            
+            // Use a função $.ajax do jQuery para fazer a solicitação AJAX
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {'solicitacao_id':solicitacaoId,'peca':peca,'usuario_id':usuario,'prioridade':prioridade},
+                headers: { "X-CSRFToken": XCSRFToken },
+                success: function (data) {
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Peça Cadastrada!',
+                        text: "Peça cadastrada com sucesso!",
+                    }).then((result) => {
+                        // Ação a ser realizada após o botão "OK" ser clicado
+                        if (result.isConfirmed) {
+                            $("#tbl_designacoes").html(data);
+                           
+                           
+                        }
+                    });
+                },
+                error: function (data) {
+                    console.log(data)
+                    if (data.responseJSON && data.responseJSON.error_message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ops!',
+                            text: data.responseJSON.error_message
+                        });
+                    }
+                }
+            });
+        }
+    });
+}
+
+function cadastrarPeca(solicitacaoId){
+    var XCSRFToken = '{{ csrf_token }}';
+    Swal.fire({
+        title: 'Cadastrar Peça',
+        text: 'Deseja realmente cadastrar esta peça? ',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim',
+        cancelButtonText: 'Não'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = "/ajax/cadastrar-peca";
+
+            var peca = document.getElementById('cadpecas').value;
+            console.log(peca)
+            // Use a função $.ajax do jQuery para fazer a solicitação AJAX
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {'solicitacao_id':solicitacaoId,'peca':peca},
+                headers: { "X-CSRFToken": XCSRFToken },
+                success: function (data) {
+                    console.log(data)
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Peça Cadastrada!',
+                        text: "Peça cadastrada com sucesso!",
+                    }).then((result) => {
+                        // Ação a ser realizada após o botão "OK" ser clicado
+                        if (result.isConfirmed) {
+                            $("#tbl_pecas").html(data);
+                            peca = ""
+
+                            modalTaskView(solicitacaoId);
+                           
+                        }
+                    });
+                },
+                error: function (data) {
+                    console.log(data)
+                    if (data.responseJSON && data.responseJSON.error_message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ops!',
+                            text: data.responseJSON.error_message
+                        });
+                    }
+                }
+            });
+        }
+    });
+}
+
+
+function concluirDemanda(demandaId,formulario,files){
+
+    var XCSRFToken = '{{ csrf_token }}';
+    Swal.fire({
+        title: 'Realizar Entrega?',
+        text: 'Deseja realmente realizar esta entrega? ',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim',
+        cancelButtonText: 'Não'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = "/ajax/concluir-demanda";
+            var form = document.getElementById(formulario);
+            var formData = new FormData(form); 
+            formData.append('demandaId', demandaId);
+            var fileInput = document.getElementById(files);
+            
+            if (fileInput){
+            for (var i = 0; i < fileInput.files.length; i++) {
+                console.log(fileInput.files[i])
+                formData.append('files[]', fileInput.files[i]);
+            }
+            }
+            // Use a função $.ajax do jQuery para fazer a solicitação AJAX
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: formData,
+                headers: { "X-CSRFToken": XCSRFToken },
+                processData: false,  // Não processar os dados (o FormData já cuida disso)
+                contentType: false,  // Não definir o tipo de conteúdo (o FormData já cuida disso)
+                success: function (data) {
+          
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Demanda Entregue!',
+                        text: "Sua demanda foi entregue e já está em aprovação pelo administrador.",
+                    }).then((result) => {
+                        // Ação a ser realizada após o botão "OK" ser clicado
+                        if (result.isConfirmed) {
+                            window.location.href = 'meus-jobs';
+                           
+                        }
+                    });
+                },
+                error: function (data) {
+                    console.log(data)
+                    if (data.responseJSON && data.responseJSON.error_message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ops!',
+                            text: data.responseJSON.error_message
+                        });
+                    }
+                }
+            });
+        }
+    });
+}
+
+
+$(document).ready(function() {
+
+  $("#select2_peca_design").select2({
+    dropdownParent: $("#task-detail-modal")
+  });
+  $("#select2_usuario").select2({
+    dropdownParent: $("#task-detail-modal")
+  });
+  $("#select2_prioridade").select2({
+    dropdownParent: $("#task-detail-modal")
+  });
+
+
+  $('.summernote').summernote(
+    {
+  toolbar: [
+    ['style', ['bold', 'italic', 'underline', 'clear']],
+    ['font', ['strikethrough', 'superscript', 'subscript']],
+    ['para', ['ul', 'ol']],
+
+    // Outras opções de toolbar que você deseja incluir, mas sem 'link'
+  ],
+  // Outras configurações necessárias para o seu uso
+}
+  );
+  var briefing = `{{solicitacao.briefing|safe}}`
+  $('#solicitacaotext').summernote('code', "");
+});
+
+function showSelectedFiles() {
+            const fileInput = document.getElementById('fileInput');
+            const fileDisplay = document.getElementById('fileDisplay');
+
+            // Limpa a exibição de arquivos anteriores
+            fileDisplay.innerHTML = "";
+
+            const files = fileInput.files;
+            for (let i = 0; i < files.length; i++) {
+                const fileName = files[i].name;
+                const listItem = document.createElement('div');
+                listItem.className = "col-auto";
+                listItem.innerHTML = `
+                    <i class="file-icon ri-upload-cloud-line me-1"></i>
+                    <span style="font-size: 13px;">${fileName}</span>
+                    <i class="remove-button ri-indeterminate-circle-fill" onclick="removeFile(${i})" style="cursor: pointer; color: red; font-size: 20px;"	></i>
+                `;
+                fileDisplay.appendChild(listItem);
+            }
+        }
+
+function removeFile(index) {
+    const fileInput = document.getElementById('fileInput');
+    const files = Array.from(fileInput.files);
+    files.splice(index, 1);
+
+    // Cria um novo input de arquivo e copia os arquivos restantes
+    const newFileInput = document.createElement('input');
+    newFileInput.type = 'file';
+    newFileInput.id = 'fileInput';
+    newFileInput.multiple = true;
+    newFileInput.style.display = 'none';
+    newFileInput.addEventListener('change', showSelectedFiles);
+
+    const dataTransfer = new DataTransfer();
+    files.forEach(file => dataTransfer.items.add(file));
+    newFileInput.files = dataTransfer.files;
+
+    // Substitui o input de arquivo anterior
+    fileInput.parentNode.replaceChild(newFileInput, fileInput);
+
+    // Atualize a lista de arquivos selecionados
+    showSelectedFiles();
+}
+
+</script>
