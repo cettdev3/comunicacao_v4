@@ -1,0 +1,12 @@
+{% for arquivo in arquivos %}
+<div class="col-12"  >
+    <div class="mb-3">
+        <a style="width: 100%;" href="{{arquivo.rota}}" class="btn btn-soft-secondary">
+            <i class="ri-file-fill"></i><br>{{ arquivo.rota|cut:"/media/" }}
+        </a>
+        <a style="width: 100%;" onclick="RemoveArquivos('{{arquivo.id}}')" class="btn btn-soft-danger">
+            <i class="ri-close-circle-fill"></i> Remover Arquivo
+        </a>
+    </div>
+</div>
+{% endfor %}

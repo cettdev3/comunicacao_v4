@@ -53,7 +53,9 @@ def Concluir_Demanda(request):
         try:
             descricao = request.POST.get('editordata','')
             demandaId = request.POST.get('demandaId','')
+            pasta = request.POST.get('pasta','')
 
+            
             arquivos = request.FILES.getlist('files[]')
             for arquivo in arquivos:
                 fs1 = FileSystemStorage()
@@ -65,8 +67,54 @@ def Concluir_Demanda(request):
             demanda = Demandas.objects.get(id=demandaId)
             demanda.descricao_entrega = descricao
             demanda.status = 3
+            demanda.pasta_id = pasta
             demanda.save()
+
+            demandas_revisao = Demandas.objects.filter(autor = demanda.autor, solicitacao_id = demanda.solicitacao_id, designante = demanda.autor, descricao_entrega = "Revisão da demanda").first()
+            if demandas_revisao:
+                demandas_revisao.status = 1
+                demandas_revisao.save()
+            else:
+                #Cria demanda de revisão para o solicitante
+                demandas_revisao = Demandas.objects.create(autor = demanda.autor, status = 1,solicitacao_id = demanda.solicitacao_id , designante = demanda.autor,descricao_entrega = "Revisão da demanda")
+
 
             return JsonResponse({"success":True,"success_message": "Demanda concluída com sucesso!"}, status=200)
         except Exception as e:
-            return JsonResponse({"error":True,"error_message": str(e)}, status=200)
+            return JsonResponse({"error":True,"error_message": str(e)}, status=400)
+
+@login_required(login_url='/')        
+def Revisar_Demanda(request):
+    with transaction.atomic():
+        try:
+            id_demanda = request.POST.get('demanda_id','')
+            motivo = request.POST.get('motivo_devolucao','')
+
+            demanda = Demandas.objects.get(id=id_demanda)
+            demanda.status = 1
+            demanda.devolutiva = motivo
+            demanda.save()
+
+            #Obter o id da solicitação e buscar pela demanda a qual possui a descrição de entrega como Revisão da demanda e que o autor for o solicitante
+            solicitacao_id = demanda.solicitacao_id
+            demanda_revisao = Demandas.objects.filter(solicitacao_id=solicitacao_id,descricao_entrega="Revisão da demanda",autor=demanda.autor).first()
+            demanda = Demandas.objects.get(id=demanda_revisao.id)
+            demanda.status = 4
+            demanda.save()
+            return JsonResponse({"success":True,"success_message": "Demanda revisada com sucesso!"}, status=200)
+        
+        except Exception as e:
+            return JsonResponse({"error":True,"error_message": str(e)}, status=400)
+
+@login_required(login_url='/')        
+def removeFilesSolicitacao(request):
+    try:
+        file_id = request.POST.get('arquivo_id','')
+        solicitacao_id = request.POST.get('solicitacao_id','')
+        arquivos = Arquivos_Demandas.objects.get(id=file_id)
+        arquivos.delete()
+        arquivos_solicitacao = Arquivos_Demandas.objects.filter(demanda_id = arquivos.demanda_id).all()
+        print(len(arquivos_solicitacao))
+        return render(request,'ajax/ajax_remove_file_demand.html',{'arquivos':arquivos_solicitacao})
+    except Exception as e:
+        return JsonResponse({"error_message": str(e)}, status=400)
