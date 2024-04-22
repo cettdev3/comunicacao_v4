@@ -70,11 +70,127 @@
 
                     <div class="col-md-12">
                         <div class="mb-1">
+                            <div class="card border-primary border">
+                                <div class="card-body">
+                                    <h5 class="card-title text-primary">Alterar Solicitação</h5>
+                                    
+                                    <div class="row">
+                                        <form id="form_solicitacao" method="POST"  enctype="multipart/form-data">
+                                            <li class="list-group-item">
+                                                <div class="row">
+                                                <div class="col-{% if cargo != 1 %}4{% else %}3{% endif %}">
+                                                    <div class="mb-3">
+                                                        <label for="titulo" class="form-label">Título: </label>
+                                                        <input type="text" id="titulo" name="titulo" value="{{solicitacao.titulo}}" class="form-control">
+                                                    </div>
+                                                </div>
+                                                <div class="col-{% if cargo != 1 %}4{% else %}3{% endif %}">
+                                                    <div class="mb-3">
+                                                        <label for="prazo_entrega" class="form-label">Prazo de Entrega: </label>
+                                                        <input type="text" class="form-control" value="{{solicitacao.prazo_entrega|date:'d/m/Y'}}" id="prazo_entrega" name="prazo_entrega" placeholder="Informe o vencimento" data-toggle="input-mask" data-mask-format="00/00/0000" maxlength="10">
+                                                    </div>
+                                                </div>
+                                              
+                                                <div class="col-{% if cargo != 1 %}4{% else %}3{% endif %}">
+                                                    <div class="mb-3">
+                                                        <label for="simpleinput" class="form-label">Prioridade:</label>
+                                                        <select class="form-control select2" data-toggle="select2" name="prioridade" id="prioridade">
+                                                            <option value="1" {% if solicitacao.prioridade == 1 %} selected {% endif %}>NORMAL</option>
+                                                            <option value="2" {% if solicitacao.prioridade == 2 %} selected {% endif %}>URGENTE</option>
+                
+                                     
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                {% if cargo == 1 %}
+                                                <div class="col-3">
+                                                    <div class="mb-3">
+                                                        <label for="simpleinput" class="form-label">Solicitar por:</label>
+                                                        <select class="form-control select2" data-toggle="select2" name="solicitante" id="solicitante">
+                                                            <option value="{{request.user.id}}" selected>Ninguém</option>
+                                                            {% for usuario_cordenador in usuarios_cordenadores %}
+                                                            <option value="{{usuario_cordenador.id}}">{{usuario_cordenador.first_name}}</option>
+                
+                                                            {% endfor %}
+                                                        </select>
+                                                    </div>
+                                                </div>
+                                                {% endif %}
+                                                <div class="col-12">
+                                                    <div class="card border-success border">
+                                                        <div class="card-body">
+                                                            <h5 class="card-title text-success">Briefing</h5>
+                                                            <div class="mb-2">
+                                                                <textarea id="briefing" name="briefing" class="summernote"></textarea>
+                                                                
+                                                            </div>
+                                                        </div> <!-- end card-body-->
+                                                    </div>
+                                                </div>
+                                                <div class="col-12 mb-3 mt-3">
+                                                    <h4 class="card-title text-dark"><i class="ri-folder-2-fill"></i> Cadastrar Pasta <button onclick="adicionarCampo()" style="float: right;" type="button" class="btn btn-dark btn-sm"><i class="ri-folder-2-fill"></i> <span>Adicionar Pasta</span> </button></h4> <hr>
+                                                    
+                                                    <div id="campos_pasta">
+                                                        {% for pasta in pastas %}
+                                                        <div class="campo_pasta mb-2" >
+                                                            <div class="input-group">
+                                                                <input disabled type="text" class="form-control " value="{{pasta.nome}}" name="pastas" placeholder="Nome da Pasta">
+                                                           
+                                                            </div>
+                                                        </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                    
+                                                  
+                                                <div class="col-12 mb-3 mt-3">
+                                                    <h4 class="card-title text-dark"><i class="ri-shield-user-fill"></i> Designar Usuários</h4> <hr>
+                                                    <div class="row">
+                                                        {% for usuario in usuarios %}
+                                                        <div class="col-3 mb-3">
+                                                            <div class="form-check form-checkbox-dark mb-2">
+                                                                <input type="checkbox" class="form-check-input" id="customCheckcolor{{usuario.id}}" name="usuarios" value="{{usuario.id}}">
+                                                                <label class="form-check-label" for="customCheckcolor{{usuario.id}}">{{usuario.first_name}}</label>
+                                                            </div>
+                                                        </div>
+                                                        {% endfor %}
+                                                </div>
+                                                </div>
+                                                
+                                                <div class="col-12">
+                                                    
+                                                </div>
+                                                <div class="col-12">  
+                                                    <input style="width: 100%;" type="file" id="fileInput" class="d-none" multiple onchange="showSelectedFiles()">
+                                                    <div class="row" id="fileDisplay"></div>
+                                                </div>
+
+                                                <div class="col-12 mb-2">
+                                                    <label for="fileInput" class="btn btn-info" style="width: 100%;">
+                                                        <i class="ri-upload-cloud-line me-1"></i> Anexar Arquivos
+                                                      </label>
+                                                   
+                                                </div> 
+                                               
+                                                <div class="col-12">
+                                                    <button onclick="RealizaSolicitacao()" style="width: 100%;" type="button" class="btn btn-info"><i class="ri-rocket-line me-1"></i> <span>Alterar Solicitação</span> </button>
+                                                </div>
+                                            </div>
+                                            </li>
+                
+                                            </form>
+                                    </div>
+
+                                </div> <!-- end card-body-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="mb-1">
                             <div class="card border-warning border">
                                 <div class="card-body">
                                     <h5 class="card-title text-warning mb-4">Demandas Relacionadas</h5>
                                     {% for demanda in demandas %}
-                                    {% if demanda.descricao_entrega != "Revisão da demanda" %}
+                                    {% if demanda.descricao_entrega != "Revisão da demanda" and demanda.descricao_entrega != "Aprovação da demanda" %}
                                     <div class="col-12">
                                     
                                             <div class="row">
@@ -90,6 +206,8 @@
                                                                     {% endif %}
                                                                 </td>
                                                                 <td style="text-align: right;">
+                                                                    <span class="badge bg-warning rounded-pill"><i class="ri-folder-line"></i> {{demanda.pasta.nome}}</span>
+                                                                   
                                                                     {% if demanda.status == 1 %}
                                                                     <span class="badge bg-warning rounded-pill">{{demanda.get_status_display}}</span>
                                                                     {% elif demanda.status == 2 %}
@@ -140,7 +258,7 @@
                                                                         <span>{{ demanda.descricao_entrega|safe }}</span>
                                                                     {% endif %}
 
-                                                                    {% if demanda.demandas_arquivos %}
+                                                                    {% if demanda.demandas_arquivos%}
                                                                     <div class="row" id="arquivos_solicitacao">
                                                                         {% for arquivo in demanda.demandas_arquivos %}
                                                                         <div class="col-12"  >
@@ -148,9 +266,11 @@
                                                                                 <a style="width: 100%;" href="{{arquivo.rota}}" class="btn btn-soft-secondary">
                                                                                     <i class="ri-file-fill"></i><br>{{ arquivo.rota|cut:"/media/" }}
                                                                                 </a>
+                                                                                {% if demanda.status < 4 %}
                                                                                 <a style="width: 100%;" onclick="RemoveArquivos('{{arquivo.id}}','{{demanda.solicitacao_id}}')" class="btn btn-soft-danger">
                                                                                     <i class="ri-close-circle-fill"></i> Remover Arquivo
                                                                                 </a>
+                                                                            {% endif %}
                                                                             </div>
                                                                         </div>
                                                                         {% endfor %}
@@ -182,14 +302,37 @@
                                                 
                                                 {% endif %}
                                                 {% if demanda.autor_id == request.user.id %}
-                                                <div class="row">
+                                                <div class="row mb-3">
                                                     
                                                     <div class="col-6"></div>
-                                                    <div class="col-3"><button onclick="adicionarCampo()" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-checkbox-circle-line"></i> <span>Enviar P/Aprovação</span> </button></div>
+                                                    <div class="col-3"><button onclick="enviaAprovacao()" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-checkbox-circle-line"></i> <span>Enviar P/Aprovação</span> </button></div>
                                                     <div class="col-3" ><button onclick="revisaoDemanda()" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-exchange-fill"></i> <span>Solicitar Revisão</span> </button></div>
                                                 </div>
                                                 {% endif %}
 
+                                                {% if usuario_logado.cargo == 1 and demanda.status == 3 %}
+                                                <div class="row mb-3">
+                                                    
+                                                    <div class="col-4" ></div>
+                                                    <div class="col-4"><button onclick="ConcluirDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-checkbox-circle-line"></i> <span>Aprovar Demanda</span> </button></div>
+                                                    <div class="col-4" ><button onclick="revisaoDemanda()" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-exchange-fill"></i> <span>Devolver para Cordenador</span> </button></div>
+                                                </div>
+                                                {% endif %}
+                                                
+                                                <div class="col-12"  id="display_aprovacao" style="display: none;">
+                                                    <div class="mb-3">
+                                
+                                                                <label for="solicitacaotext" class="form-label">Informe o Responsável pela Aprovação:</label>
+                                                                <select class="form-control select2" data-toggle="select2" name="gerente_select" id="gerente_select">
+                                                                    {% for gerente in gerentes %}
+                                                                    <option value="{{gerente.user_profile.id}}">{{gerente.user_profile.first_name}}</option>
+                        
+                                                                    {% endfor %}
+                                                                </select>
+                                                                <button onclick="AprovarDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-soft-primary rounded-pill mt-2"> <i class="ri-corner-up-left-fill"></i> Enviar </button>
+                                
+                                                    </div>
+                                                </div>
                                                 <div class="col-12"  id="motivo_revisao" style="display: none;">
                                                     <div class="mb-3">
                                 
@@ -199,6 +342,8 @@
                                 
                                                     </div>
                                                 </div>
+
+                                               
                                                 </div>
                                             </div>
                                        
@@ -220,6 +365,58 @@
 
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
+
+function AprovarDemanda(demanda_id){
+    var XCSRFToken = '{{ csrf_token }}';
+    Swal.fire({
+        title: 'Encaminhar Demanda?',
+        text: 'Deseja encaminhar esta demanda para aprovação? ',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim',
+        cancelButtonText: 'Não'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = "/ajax/aprovar-demanda";
+            var gerente = document.getElementById("gerente_select").value;
+        
+            // Use a função $.ajax do jQuery para fazer a solicitação AJAX
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {'gerente': gerente, 'demanda_id': demanda_id},
+                headers: { "X-CSRFToken": XCSRFToken },
+                success: function (data) {
+          
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Demanda Encaminhada!',
+                        text: "Sua demanda foi encaminhada com sucesso!",
+                    }).then((result) => {
+                        // Ação a ser realizada após o botão "OK" ser clicado
+                        if (result.isConfirmed) {
+                            window.location.href = 'meus-jobs';
+                           
+                        }
+                    });
+                },
+                error: function (data) {
+                    console.log(data)
+                    if (data.responseJSON && data.responseJSON.error_message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ops!',
+                            text: data.responseJSON.error_message
+                        });
+                    }
+                }
+            });
+        }
+    });
+
+}
 
 function RemoveArquivos(file_id,solicitacao_id){
     var XCSRFToken = '{{ csrf_token }}';
@@ -585,7 +782,15 @@ function concluirDemanda(demandaId,formulario,files){
 
 function revisaoDemanda(){
     var elemento = document.getElementById("motivo_revisao");
+    var envia_aprovacao = document.getElementById("display_aprovacao");
     elemento.style.display = 'block';
+    envia_aprovacao.style.display = 'none';
+}
+function enviaAprovacao(){
+    var elemento = document.getElementById("motivo_revisao");
+    var envia_aprovacao = document.getElementById("display_aprovacao");
+    envia_aprovacao.style.display = 'block';
+    elemento.style.display = 'none';
 }
 
 function devolverDemanda(demanda_id){
@@ -641,15 +846,56 @@ function devolverDemanda(demanda_id){
     });
 }
 
+function ConcluirDemanda(demandaId){
+    var XCSRFToken = '{{ csrf_token }}';
+    Swal.fire({
+        title: 'Aprovar Demanda?',
+        text: 'Deseja aprovar e finalizar esta demanda? ',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim',
+        cancelButtonText: 'Não'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = "/ajax/finalizar-demanda";
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {'demanda_id': demandaId},
+                headers: { "X-CSRFToken": XCSRFToken },
+                success: function (data) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Concluído!',
+                        text: "Esta demanda foi concluída.",
+                    }).then((result) => {
+                        // Ação a ser realizada após o botão "OK" ser clicado
+                        if (result.isConfirmed) {
+                            window.location.href = 'meus-jobs';
+                           
+                        }
+                    });
+                },
+                error: function (data) {
+                    console.log(data)
+                    if (data.responseJSON && data.responseJSON.error_message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ops!',
+                            text: data.responseJSON.error_message
+                        });
+                    }
+                }
+            });
+        }
+    });
+}
+
 $(document).ready(function() {
 
-//   $("#prioridade").select2({
-//     dropdownParent: $("#task-detail-modal")
-//   });
-
-
-
-  $('.summernote').summernote(
+    $('.summernote').summernote(
     {
   toolbar: [
     ['style', ['bold', 'italic', 'underline', 'clear']],
@@ -662,7 +908,9 @@ $(document).ready(function() {
 }
   );
   var briefing = `{{solicitacao.briefing|safe}}`
-  $('#solicitacaotext').summernote('code', "");
+
+  $('#briefing').summernote('code', "");
+
 });
 
 function showSelectedFiles() {
@@ -710,4 +958,22 @@ function removeFile(index) {
     showSelectedFiles();
 }
 
+function adicionarCampo() {
+    var novoCampo = document.createElement('div');
+            novoCampo.innerHTML = `
+                <div class="campo_pasta">
+                    <div class="input-group mb-2">
+                        <input type="text" class="form-control " name="pastas" placeholder="Nome da Pasta">
+                        <div class="input-group-append">
+                            <button style="padding: 10px;" type="button" class="btn btn-danger btn-sm" onclick="removerCampo(this)"><i class="ri-close-circle-line"></i></button>
+                        </div>
+                    </div>
+                </div>`;
+            document.getElementById('campos_pasta').appendChild(novoCampo);
+        }
+
+function removerCampo(elemento) {
+            // Remove o elemento pai do botão (ou seja, o campo de entrada e o botão de remoção)
+            elemento.closest('.campo_pasta').remove();
+        }
 </script>
