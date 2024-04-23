@@ -26,10 +26,17 @@
                             <a href="/jobs-individual" type="button" class="btn btn-info"><i class="ri-file-search-line me-1"></i> <span>Pesquisar Job</span> </a>
                         </ol>
                     </div>
+                    {% if usuario.cargo <= 2 %}
+                    <select class="form-control select2 col-12 mt-2" data-toggle="select2" name="usuario_backlog" id="usuario_backlog" onchange="backlog()">
+                        {% for usuario in usuarios %}
+                        <option value="{{usuario.id}}" selected>{{usuario.first_name}}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
                 </div>
             </div>     
 
-            <div class="row">
+            <div class="row mt-2" id="backlog" >
                 <div class="col-12">
                     <div class="board">
                         <div class="tasks" data-plugin="dragula" data-containers='["task-list-one", "task-list-two", "task-list-three", "task-list-four","task-list-five"]'>
@@ -347,6 +354,28 @@ function showSelectedFilesDinamic(n) {
         `;
         fileDisplay.appendChild(listItem);
     }
+}
+
+function backlog(){
+    usuario = document.getElementById('usuario_backlog').value;
+    const url = '/ajax/backlog-user';
+
+    $.ajax({
+        url,
+        type: 'GET',
+        data: { 'usuario': usuario },
+        success: function(data) {
+            $("#backlog").html(data);
+            
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Ops!',
+                text: 'Não foi possível obter resultados!'
+            });
+        }
+    });
 }
 
 </script>
