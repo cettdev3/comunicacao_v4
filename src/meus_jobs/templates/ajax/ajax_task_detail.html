@@ -67,7 +67,7 @@
                             </div>
                         </div>
                     </div>
-
+                    {% if usuario_logado.cargo <= 2  %}
                     <div class="col-md-12">
                         <div class="mb-1">
                             <div class="card border-primary border">
@@ -171,9 +171,15 @@
                                                    
                                                 </div> 
                                                
-                                                <div class="col-12">
+                                                <div class="col-12  mb-2">
                                                     <button onclick="alteraSolicitacao('{{solicitacao.id}}')" style="width: 100%;" type="button" class="btn btn-info"><i class="ri-rocket-line me-1"></i> <span>Alterar Solicitação</span> </button>
                                                 </div>
+
+                                                {% if demandas_pendentes == 1 %}
+                                                <div class="col-12">
+                                                    <button onclick="finalizarJob('{{solicitacao.id}}')" style="width: 100%;" type="button" class="btn btn-success"><i class=" ri-checkbox-circle-line me-1"></i> <span>Finalizar Job</span> </button>
+                                                </div>
+                                                {% endif %}
                                             </div>
                                             </li>
                 
@@ -184,6 +190,7 @@
                             </div>
                         </div>
                     </div>
+                    {% endif %}
                     <div class="col-md-12">
                         <div class="mb-1">
                             <div class="card border-warning border">
@@ -301,12 +308,12 @@
 
                                                     
                                                     {% endif %}
-                                                    {% if demanda.autor_id == request.user.id %}
+                                                    {% if demanda.autor_id == request.user.id and demanda.status == 3 %}
                                                     <div class="row mb-3">
                                                         
                                                         <div class="col-6"></div>
-                                                        <div class="col-3"><button onclick="enviaAprovacao()" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-checkbox-circle-line"></i> <span>Enviar P/Aprovação</span> </button></div>
-                                                        <div class="col-3" ><button onclick="revisaoDemanda()" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-exchange-fill"></i> <span>Solicitar Revisão</span> </button></div>
+                                                        <div class="col-3"><button onclick="enviaAprovacao('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-checkbox-circle-line"></i> <span>Enviar P/Aprovação</span> </button></div>
+                                                        <div class="col-3" ><button onclick="revisaoDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-exchange-fill"></i> <span>Solicitar Revisão</span> </button></div>
                                                     </div>
                                                     {% endif %}
 
@@ -315,11 +322,11 @@
                                                         
                                                         <div class="col-4" ></div>
                                                         <div class="col-4"><button onclick="ConcluirDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-checkbox-circle-line"></i> <span>Aprovar Demanda</span> </button></div>
-                                                        <div class="col-4" ><button onclick="revisaoDemanda()" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-exchange-fill"></i> <span>Devolver para Cordenador</span> </button></div>
+                                                        <div class="col-4" ><button onclick="revisaoDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-exchange-fill"></i> <span>Devolver para Cordenador</span> </button></div>
                                                     </div>
                                                     {% endif %}
                                                     
-                                                    <div class="col-12"  id="display_aprovacao" style="display: none;">
+                                                    <div class="col-12"  id="display_aprovacao_{{demanda.id}}" style="display: none;">
                                                         <div class="mb-3">
                                     
                                                                     <label for="solicitacaotext" class="form-label">Informe o Responsável pela Aprovação:</label>
@@ -333,11 +340,11 @@
                                     
                                                         </div>
                                                     </div>
-                                                    <div class="col-12"  id="motivo_revisao" style="display: none;">
+                                                    <div class="col-12"  id="motivo_revisao_{{demanda.id}}" style="display: none;">
                                                         <div class="mb-3">
                                     
                                                                     <label for="solicitacaotext" class="form-label">Informe o Motivo da Revisão:</label>
-                                                                    <textarea class="summernote"  id="motivo_revisao_{{demanda.id}}" name="motivo_revisao_{{demanda.id}}"></textarea>
+                                                                    <textarea class="summernote"  id="motivo_revisao_demanda_{{demanda.id}}" name="motivo_revisao_demanda_{{demanda.id}}"></textarea>
                                                                     <button onclick="devolverDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-soft-danger rounded-pill mt-2"> <i class="ri-corner-up-left-fill"></i> Solicitar Revisão</button>
                                     
                                                         </div>
@@ -524,8 +531,8 @@ function devolveSolicitacao(solicitacaoID){
     });
 }
 
-function show_devolve_solicitacao(){
-    var elemento = document.getElementById("motivo_devolucao");
+function show_devolve_solicitacao(demanda_id){
+    var elemento = document.getElementById("motivo_devolucao_"+demanda_id);
     elemento.style.display = 'block';
 }
 
@@ -780,22 +787,22 @@ function concluirDemanda(demandaId,formulario,files){
     });
 }
 
-function revisaoDemanda(){
-    var elemento = document.getElementById("motivo_revisao");
-    var envia_aprovacao = document.getElementById("display_aprovacao");
+function revisaoDemanda(demanda_id){
+    var elemento = document.getElementById("motivo_revisao_"+demanda_id);
+    var envia_aprovacao = document.getElementById("display_aprovacao_"+demanda_id);
     elemento.style.display = 'block';
     envia_aprovacao.style.display = 'none';
 }
-function enviaAprovacao(){
-    var elemento = document.getElementById("motivo_revisao");
-    var envia_aprovacao = document.getElementById("display_aprovacao");
+function enviaAprovacao(demanda_id){
+    var elemento = document.getElementById("motivo_revisao_"+demanda_id);
+    var envia_aprovacao = document.getElementById("display_aprovacao_"+demanda_id);
     envia_aprovacao.style.display = 'block';
     elemento.style.display = 'none';
 }
 
 function devolverDemanda(demanda_id){
     var iddemanda = demanda_id;
-    var motivo_devolucao = document.getElementById("motivo_revisao_"+iddemanda).value;
+    var motivo_devolucao = document.getElementById("motivo_revisao_demanda_"+iddemanda).value;
   
     var XCSRFToken = '{{ csrf_token }}';
     Swal.fire({
@@ -976,4 +983,53 @@ function removerCampo(elemento) {
             // Remove o elemento pai do botão (ou seja, o campo de entrada e o botão de remoção)
             elemento.closest('.campo_pasta').remove();
         }
+
+function finalizarJob(solicitacao_id){
+    var XCSRFToken = '{{ csrf_token }}';
+    Swal.fire({
+        title: 'Concluir o Job?',
+        text: 'Deseja realmente concluir este Job? ',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim',
+        cancelButtonText: 'Não'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = "/ajax/concluir-job";
+            // Use a função $.ajax do jQuery para fazer a solicitação AJAX
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: {'solicitacao_id': solicitacao_id},
+                headers: { "X-CSRFToken": XCSRFToken },
+                success: function (data) {
+          
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Job Finalizado!',
+                        text: "Job foi finalizado com sucesso!",
+                    }).then((result) => {
+                        // Ação a ser realizada após o botão "OK" ser clicado
+                        if (result.isConfirmed) {
+                            window.location.href = 'meus-jobs';
+                           
+                        }
+                    });
+                },
+                error: function (data) {
+                    console.log(data)
+                    if (data.responseJSON && data.responseJSON.error_message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ops!',
+                            text: data.responseJSON.error_message
+                        });
+                    }
+                }
+            });
+        }
+    });
+}
 </script>

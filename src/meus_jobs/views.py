@@ -53,11 +53,14 @@ def Show_Modal_Task(request):
     gerentes = Perfil.objects.filter(cargo=1).all()
     usuario_logado = Perfil.objects.filter(user_profile_id = request.user.id).first()
 
+    #obtenho a quantidade de demandas que não estão concluidas
+    demandas_nao_concluidas = Demandas.objects.filter(solicitacao = solicitacao, status__lt = 4).count()
+
     usuarios = User.objects.all()
     demandas = Demandas.objects.filter(solicitacao = solicitacao).all()
     for demanda in demandas:
         demanda.demandas_arquivos = Arquivos_Demandas.objects.filter(demanda = demanda).all()
-    return render(request,'ajax/ajax_task_detail.html',{'solicitacao':solicitacao,'demandas':demandas,'arquivos_solicitacao':arquivos_solicitacao,'pastas':pastas,'gerentes':gerentes,'usuario_logado':usuario_logado,'usuarios':usuarios})	
+    return render(request,'ajax/ajax_task_detail.html',{'solicitacao':solicitacao,'demandas':demandas,'arquivos_solicitacao':arquivos_solicitacao,'pastas':pastas,'gerentes':gerentes,'usuario_logado':usuario_logado,'usuarios':usuarios,'demandas_pendentes':demandas_nao_concluidas})	
 
 @login_required(login_url='/')
 def Concluir_Demanda(request):
@@ -171,6 +174,7 @@ def aprovarDemanda(request):
     demanda_gerente = Demandas.objects.filter(designante=gerente,descricao_entrega="Aprovação da demanda",solicitacao_id=demanda.solicitacao_id).first()
 
     demanda_cordendador = Demandas.objects.filter(descricao_entrega="Revisão da demanda",solicitacao_id=demanda.solicitacao_id).first()
+
     if demanda_gerente:
         demanda_gerente.status = 1
         demanda_gerente.save()
@@ -203,6 +207,11 @@ def concluirDemanda(request):
                 demanda_gerente = Demandas.objects.filter(descricao_entrega="Aprovação da demanda",solicitacao_id=demanda.solicitacao_id).first()
                 demanda_gerente.status = 4
                 demanda_gerente.save()
+
+                #Reabro a demanda do cordenador
+                demanda_cordenador = Demandas.objects.filter(descricao_entrega="Revisão da demanda",solicitacao_id=demanda.solicitacao_id).first()
+                demanda_cordenador.status = 1
+                demanda_cordenador.save()
 
 
         except Exception as e:
@@ -244,6 +253,7 @@ def backlogUser(request):
     
 @login_required(login_url='/') 
 def alteraSolicitacao(request):
+
     print(request.POST)
     #DADOS DA SOLICITAÇÃO
     titulo = request.POST.get('titulo','')
@@ -319,3 +329,21 @@ def alteraSolicitacao(request):
                     pasta_criada = Pastas.objects.create(nome = pasta, solicitacao = solicitacao)
 
     return JsonResponse({"success_message": "Solicitação Alterada!"}, status=200)
+
+@login_required(login_url='/') 
+def concluirJob(request):
+    solicitacao_id = request.POST.get('solicitacao_id','')
+    try:
+        with transaction.atomic():
+            #obtenho a solicitação e altero o status dela para concluido
+            solicitacao = Solicitacoes.objects.get(id=solicitacao_id)
+            solicitacao.status = 4
+            solicitacao.save()
+
+            demanda_cordenador = Demandas.objects.filter(descricao_entrega="Revisão da demanda",solicitacao_id=solicitacao_id).first()
+            demanda_cordenador.status = 4
+            demanda_cordenador.save()
+            return JsonResponse({"success":True,"success_message": "Solicitação concluída com sucesso!"}, status=200)
+    except Exception as e:
+        return JsonResponse({"error":True,"error_message": str(e)}, status=400)
+    
