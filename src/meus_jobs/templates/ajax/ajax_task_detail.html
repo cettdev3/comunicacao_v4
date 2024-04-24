@@ -75,7 +75,7 @@
                                     <h5 class="card-title text-primary">Alterar Solicitação</h5>
                                     
                                     <div class="row">
-                                        <form id="form_solicitacao" method="POST"  enctype="multipart/form-data">
+                                        <form id="form_alteracao" method="POST"  enctype="multipart/form-data">
                                             <li class="list-group-item">
                                                 <div class="row">
                                                 <div class="col-{% if cargo != 1 %}4{% else %}3{% endif %}">
@@ -172,7 +172,7 @@
                                                 </div> 
                                                
                                                 <div class="col-12">
-                                                    <button onclick="RealizaSolicitacao()" style="width: 100%;" type="button" class="btn btn-info"><i class="ri-rocket-line me-1"></i> <span>Alterar Solicitação</span> </button>
+                                                    <button onclick="alteraSolicitacao('{{solicitacao.id}}')" style="width: 100%;" type="button" class="btn btn-info"><i class="ri-rocket-line me-1"></i> <span>Alterar Solicitação</span> </button>
                                                 </div>
                                             </div>
                                             </li>
@@ -191,163 +191,163 @@
                                     <h5 class="card-title text-warning mb-4">Demandas Relacionadas</h5>
                                     {% for demanda in demandas %}
                                     {% if demanda.descricao_entrega != "Revisão da demanda" and demanda.descricao_entrega != "Aprovação da demanda" %}
-                                    <div class="col-12">
-                                    
-                                            <div class="row">
-                                                <div class="col-12">
-                                                    <table style="width: 100%;">
-                                                        <tbody>
-                                                            <tr >
-                                                                <td>
-                                                                    {% if solicitacao.perfil_solicitante.foto %}
-                                                                        <img src="{{solicitacao.perfil_solicitante.foto}}" id="avatar_topo" alt="user-image" width="36" height="36" class="avatar-xs rounded-circle me-1"> 
-                                                                    {% else %}
-                                                                        <img src="https://ui-avatars.com/api/?name={{demanda.designante.first_name}}&color=7F9CF5&background=EBF4FF" id="avatar_topo" alt="user-image" width="36" height="36" class="avatar-xs rounded-circle me-1"> <b>{{demanda.designante.first_name}}</b>
-                                                                    {% endif %}
-                                                                </td>
-                                                                <td style="text-align: right;">
-                                                                    <span class="badge bg-warning rounded-pill"><i class="ri-folder-line"></i> {{demanda.pasta.nome}}</span>
-                                                                   
-                                                                    {% if demanda.status == 1 %}
-                                                                    <span class="badge bg-warning rounded-pill">{{demanda.get_status_display}}</span>
-                                                                    {% elif demanda.status == 2 %}
-                                                                    <span class="badge bg-primary rounded-pill">{{demanda.get_status_display}}</span>
-                                                                    {% elif demanda.status == 3 %}
-                                                                    <span class="badge bg-danger rounded-pill">{{demanda.get_status_display}}</span>
-                                                                    {% elif demanda.status == 4 %}
-                                                                    <span class="badge bg-success rounded-pill">{{demanda.get_status_display}}</span>
-                                                                    {% endif %}
+                                        <div class="col-12">
+                                        
+                                                <div class="row">
+                                                    <div class="col-12">
+                                                        <table style="width: 100%;">
+                                                            <tbody>
+                                                                <tr >
+                                                                    <td>
+                                                                        {% if solicitacao.perfil_solicitante.foto %}
+                                                                            <img src="{{solicitacao.perfil_solicitante.foto}}" id="avatar_topo" alt="user-image" width="36" height="36" class="avatar-xs rounded-circle me-1"> 
+                                                                        {% else %}
+                                                                            <img src="https://ui-avatars.com/api/?name={{demanda.designante.first_name}}&color=7F9CF5&background=EBF4FF" id="avatar_topo" alt="user-image" width="36" height="36" class="avatar-xs rounded-circle me-1"> <b>{{demanda.designante.first_name}}</b>
+                                                                        {% endif %}
                                                                     </td>
-                                                            </tr>
-                                                          
-                                                            <tr>
-                                                                <td colspan="2" class="mt-4">
-                                                                   
-                                                                    {% if  demanda.designante_id == request.user.id and demanda.status == 1 %}
-                                                                    {{ demanda.descricao_entrega|safe }}
-                                                                    <form id="formRealizaEntrega_{{forloop.counter}}"  method="POST" enctype="multipart/form-data" style="border: 3px solid #888888; border-radius: 10px; padding: 20px;">
-                                                                        <div class="mt-3 mb-3"  >
-                                                                            <label for="simpleinput" class="form-label">Selecione a Pasta:</label>
-                                                                            <select  class="form-control" data-toggle="select2" name="pasta" id="pasta">
-                                                                                {% for pasta in pastas %}
-                                                                                <option value="{{pasta.id}}" selected>{{pasta.nome}}</option>
-                                                  
-                                                                                {% endfor %}
-                                                         
-                                                                            </select>
-                                                                        </div>
-                                                                        <div class="row d-flex align-items-center justify-content-center">
-                                                                       
-                                                                            <div class="col-12 col-sm-12 col-md-12" style="text-align: center;">
-                                                                                <label style="width: 100%;" for="files{{forloop.counter}}" class="btn btn-primary">
-                                                                                    <i class="ri-file-fill"></i> ESCOLHER ARQUIVOS
-                                                                                </label>
+                                                                    <td style="text-align: right;">
+                                                                        <span class="badge bg-warning rounded-pill"><i class="ri-folder-line"></i> {{demanda.pasta.nome}}</span>
+                                                                    
+                                                                        {% if demanda.status == 1 %}
+                                                                        <span class="badge bg-warning rounded-pill">{{demanda.get_status_display}}</span>
+                                                                        {% elif demanda.status == 2 %}
+                                                                        <span class="badge bg-primary rounded-pill">{{demanda.get_status_display}}</span>
+                                                                        {% elif demanda.status == 3 %}
+                                                                        <span class="badge bg-danger rounded-pill">{{demanda.get_status_display}}</span>
+                                                                        {% elif demanda.status == 4 %}
+                                                                        <span class="badge bg-success rounded-pill">{{demanda.get_status_display}}</span>
+                                                                        {% endif %}
+                                                                        </td>
+                                                                </tr>
+                                                            
+                                                                <tr>
+                                                                    <td colspan="2" class="mt-4">
+                                                                    
+                                                                        {% if  demanda.designante_id == request.user.id and demanda.status == 1 %}
+                                                                        {{ demanda.descricao_entrega|safe }}
+                                                                        <form id="formRealizaEntrega_{{forloop.counter}}"  method="POST" enctype="multipart/form-data" style="border: 3px solid #888888; border-radius: 10px; padding: 20px;">
+                                                                            <div class="mt-3 mb-3"  >
+                                                                                <label for="simpleinput" class="form-label">Selecione a Pasta:</label>
+                                                                                <select  class="form-control" data-toggle="select2" name="pasta" id="pasta">
+                                                                                    {% for pasta in pastas %}
+                                                                                    <option value="{{pasta.id}}" selected>{{pasta.nome}}</option>
+                                                    
+                                                                                    {% endfor %}
+                                                            
+                                                                                </select>
                                                                             </div>
-                                                                           
+                                                                            <div class="row d-flex align-items-center justify-content-center">
+                                                                        
+                                                                                <div class="col-12 col-sm-12 col-md-12" style="text-align: center;">
+                                                                                    <label style="width: 100%;" for="files{{forloop.counter}}" class="btn btn-primary">
+                                                                                        <i class="ri-file-fill"></i> ESCOLHER ARQUIVOS
+                                                                                    </label>
+                                                                                </div>
                                                                             
-                                                                                <input style="width: 100%;" type="file" name="files{{forloop.counter}}" id="files{{forloop.counter}}" class="d-none" multiple onchange="showSelectedFilesDinamic('{{forloop.counter}}')">
-                                                                                <div  class="row mt-2" id="fileDisplay{{forloop.counter}}"></div>
-                                                                      
-                                                                        </div>
-                                                                        <textarea  style="background-color: burlywood;" class="summernote"  id="summernote" name="editordata"></textarea>
-                                                                        <hr>
-                                                                        <button onclick="concluirDemanda('{{demanda.id}}','formRealizaEntrega_{{forloop.counter}}','files{{forloop.counter}}')" style="width: 100%;" type="button" class="btn btn-success"><i class="ri-checkbox-circle-line me-1"></i> <span> Concluir Demanda</span> </button>
-                                                                        </form>
-                                                                   
-                                                                    {% else %}
-                                                                        <span>{{ demanda.descricao_entrega|safe }}</span>
-                                                                    {% endif %}
+                                                                                
+                                                                                    <input style="width: 100%;" type="file" name="files{{forloop.counter}}" id="files{{forloop.counter}}" class="d-none" multiple onchange="showSelectedFilesDinamic('{{forloop.counter}}')">
+                                                                                    <div  class="row mt-2" id="fileDisplay{{forloop.counter}}"></div>
+                                                                        
+                                                                            </div>
+                                                                            <textarea  style="background-color: burlywood;" class="summernote"  id="summernote" name="editordata"></textarea>
+                                                                            <hr>
+                                                                            <button onclick="concluirDemanda('{{demanda.id}}','formRealizaEntrega_{{forloop.counter}}','files{{forloop.counter}}')" style="width: 100%;" type="button" class="btn btn-success"><i class="ri-checkbox-circle-line me-1"></i> <span> Concluir Demanda</span> </button>
+                                                                            </form>
+                                                                    
+                                                                        {% else %}
+                                                                            <span>{{ demanda.descricao_entrega|safe }}</span>
+                                                                        {% endif %}
 
-                                                                    {% if demanda.demandas_arquivos%}
-                                                                    <div class="row" id="arquivos_solicitacao">
-                                                                        {% for arquivo in demanda.demandas_arquivos %}
-                                                                        <div class="col-12"  >
-                                                                            <div class="mb-3">
-                                                                                <a style="width: 100%;" href="{{arquivo.rota}}" class="btn btn-soft-secondary">
-                                                                                    <i class="ri-file-fill"></i><br>{{ arquivo.rota|cut:"/media/" }}
-                                                                                </a>
-                                                                                {% if demanda.status < 4 %}
-                                                                                <a style="width: 100%;" onclick="RemoveArquivos('{{arquivo.id}}','{{demanda.solicitacao_id}}')" class="btn btn-soft-danger">
-                                                                                    <i class="ri-close-circle-fill"></i> Remover Arquivo
-                                                                                </a>
-                                                                            {% endif %}
+                                                                        {% if demanda.demandas_arquivos%}
+                                                                        <div class="row" id="arquivos_solicitacao">
+                                                                            {% for arquivo in demanda.demandas_arquivos %}
+                                                                            <div class="col-12"  >
+                                                                                <div class="mb-3">
+                                                                                    <a style="width: 100%;" href="{{arquivo.rota}}" class="btn btn-soft-secondary">
+                                                                                        <i class="ri-file-fill"></i><br>{{ arquivo.rota|cut:"/media/" }}
+                                                                                    </a>
+                                                                                    {% if demanda.status < 4 %}
+                                                                                    <a style="width: 100%;" onclick="RemoveArquivos('{{arquivo.id}}','{{demanda.solicitacao_id}}')" class="btn btn-soft-danger">
+                                                                                        <i class="ri-close-circle-fill"></i> Remover Arquivo
+                                                                                    </a>
+                                                                                {% endif %}
+                                                                                </div>
                                                                             </div>
+                                                                            {% endfor %}
                                                                         </div>
-                                                                        {% endfor %}
-                                                                    </div>
-                                                                        <!-- {% for arquivo in demanda.demandas_arquivos %}
-                                                                        <div class="col-12">
-                                                                            <div class="mb-3">
-                                                                                <a style="width: 100%;" href="{{arquivo.rota}}" class="btn btn-soft-secondary">
-                                                                                    <i class="ri-file-fill"></i><br>{{ arquivo.rota|cut:"/media/" }}
-                                                                                </a>
+                                                                            <!-- {% for arquivo in demanda.demandas_arquivos %}
+                                                                            <div class="col-12">
+                                                                                <div class="mb-3">
+                                                                                    <a style="width: 100%;" href="{{arquivo.rota}}" class="btn btn-soft-secondary">
+                                                                                        <i class="ri-file-fill"></i><br>{{ arquivo.rota|cut:"/media/" }}
+                                                                                    </a>
+                                                                                </div>
                                                                             </div>
-                                                                        </div>
-                                                                        {% endfor %} -->
-                                                                    {% endif %}
-                                                                
-                                                                </td>
-                                                            </tr>
+                                                                            {% endfor %} -->
+                                                                        {% endif %}
+                                                                    
+                                                                    </td>
+                                                                </tr>
+                                                            
+                                                            </tbody>
+                                                        </table>
                                                         
-                                                        </tbody>
-                                                    </table>
-                                                    
 
-                                                <hr>
-                                                {% if demanda.devolutiva %}
-                                                <div class="alert alert-danger" role="alert">
-                                                    <i class="ri-close-circle-line me-1 align-middle fs-16"></i> {{ demanda.devolutiva|striptags }}
-                                                </div>
+                                                    <hr>
+                                                    {% if demanda.devolutiva %}
+                                                    <div class="alert alert-danger" role="alert">
+                                                        <i class="ri-close-circle-line me-1 align-middle fs-16"></i> {{ demanda.devolutiva|striptags }}
+                                                    </div>
+
+                                                    
+                                                    {% endif %}
+                                                    {% if demanda.autor_id == request.user.id %}
+                                                    <div class="row mb-3">
+                                                        
+                                                        <div class="col-6"></div>
+                                                        <div class="col-3"><button onclick="enviaAprovacao()" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-checkbox-circle-line"></i> <span>Enviar P/Aprovação</span> </button></div>
+                                                        <div class="col-3" ><button onclick="revisaoDemanda()" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-exchange-fill"></i> <span>Solicitar Revisão</span> </button></div>
+                                                    </div>
+                                                    {% endif %}
+
+                                                    {% if usuario_logado.cargo == 1 and demanda.status == 3 %}
+                                                    <div class="row mb-3">
+                                                        
+                                                        <div class="col-4" ></div>
+                                                        <div class="col-4"><button onclick="ConcluirDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-checkbox-circle-line"></i> <span>Aprovar Demanda</span> </button></div>
+                                                        <div class="col-4" ><button onclick="revisaoDemanda()" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-exchange-fill"></i> <span>Devolver para Cordenador</span> </button></div>
+                                                    </div>
+                                                    {% endif %}
+                                                    
+                                                    <div class="col-12"  id="display_aprovacao" style="display: none;">
+                                                        <div class="mb-3">
+                                    
+                                                                    <label for="solicitacaotext" class="form-label">Informe o Responsável pela Aprovação:</label>
+                                                                    <select class="form-control select2" data-toggle="select2" name="gerente_select" id="gerente_select">
+                                                                        {% for gerente in gerentes %}
+                                                                        <option value="{{gerente.user_profile.id}}">{{gerente.user_profile.first_name}}</option>
+                            
+                                                                        {% endfor %}
+                                                                    </select>
+                                                                    <button onclick="AprovarDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-soft-primary rounded-pill mt-2"> <i class="ri-corner-up-left-fill"></i> Enviar </button>
+                                    
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-12"  id="motivo_revisao" style="display: none;">
+                                                        <div class="mb-3">
+                                    
+                                                                    <label for="solicitacaotext" class="form-label">Informe o Motivo da Revisão:</label>
+                                                                    <textarea class="summernote"  id="motivo_revisao_{{demanda.id}}" name="motivo_revisao_{{demanda.id}}"></textarea>
+                                                                    <button onclick="devolverDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-soft-danger rounded-pill mt-2"> <i class="ri-corner-up-left-fill"></i> Solicitar Revisão</button>
+                                    
+                                                        </div>
+                                                    </div>
 
                                                 
-                                                {% endif %}
-                                                {% if demanda.autor_id == request.user.id %}
-                                                <div class="row mb-3">
-                                                    
-                                                    <div class="col-6"></div>
-                                                    <div class="col-3"><button onclick="enviaAprovacao()" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-checkbox-circle-line"></i> <span>Enviar P/Aprovação</span> </button></div>
-                                                    <div class="col-3" ><button onclick="revisaoDemanda()" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-exchange-fill"></i> <span>Solicitar Revisão</span> </button></div>
-                                                </div>
-                                                {% endif %}
-
-                                                {% if usuario_logado.cargo == 1 and demanda.status == 3 %}
-                                                <div class="row mb-3">
-                                                    
-                                                    <div class="col-4" ></div>
-                                                    <div class="col-4"><button onclick="ConcluirDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-checkbox-circle-line"></i> <span>Aprovar Demanda</span> </button></div>
-                                                    <div class="col-4" ><button onclick="revisaoDemanda()" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-exchange-fill"></i> <span>Devolver para Cordenador</span> </button></div>
-                                                </div>
-                                                {% endif %}
-                                                
-                                                <div class="col-12"  id="display_aprovacao" style="display: none;">
-                                                    <div class="mb-3">
-                                
-                                                                <label for="solicitacaotext" class="form-label">Informe o Responsável pela Aprovação:</label>
-                                                                <select class="form-control select2" data-toggle="select2" name="gerente_select" id="gerente_select">
-                                                                    {% for gerente in gerentes %}
-                                                                    <option value="{{gerente.user_profile.id}}">{{gerente.user_profile.first_name}}</option>
-                        
-                                                                    {% endfor %}
-                                                                </select>
-                                                                <button onclick="AprovarDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-soft-primary rounded-pill mt-2"> <i class="ri-corner-up-left-fill"></i> Enviar </button>
-                                
                                                     </div>
                                                 </div>
-                                                <div class="col-12"  id="motivo_revisao" style="display: none;">
-                                                    <div class="mb-3">
-                                
-                                                                <label for="solicitacaotext" class="form-label">Informe o Motivo da Revisão:</label>
-                                                                <textarea class="summernote"  id="motivo_revisao_{{demanda.id}}" name="motivo_revisao_{{demanda.id}}"></textarea>
-                                                                <button onclick="devolverDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-soft-danger rounded-pill mt-2"> <i class="ri-corner-up-left-fill"></i> Solicitar Revisão</button>
-                                
-                                                    </div>
-                                                </div>
-
-                                               
-                                                </div>
-                                            </div>
-                                       
-                                    </div>
+                                        
+                                        </div>
                                     {% endif %}
                                     {% endfor %}
 
@@ -531,10 +531,10 @@ function show_devolve_solicitacao(){
 
 function alteraSolicitacao(solicitacaoId){
     var XCSRFToken = '{{ csrf_token }}';
-    var prazo = document.getElementById('prazo_entrega_edit').value;
-    var briefing = document.getElementById('solicitacaotext').value;
+    var prazo = document.getElementById('prazo_entrega').value;
+    var briefing = document.getElementById('briefing').value;
     var prioridade = document.getElementById('prioridade').value;
-    var form = document.getElementById("form_solicitacao");
+    var form = document.getElementById("form_alteracao");
     var formData = new FormData(form);  // Use FormData para incluir campos de arquivo]
 
     var fileInput = document.getElementById('fileInput');

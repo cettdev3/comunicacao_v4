@@ -5,6 +5,13 @@ from django.db import transaction
 from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.contrib.auth.models import User
+from datetime import datetime
+
+def convert_data_formatada(data):
+
+    data = data.split('/')
+    data = data[2]+'-'+data[1]+'-'+data[0]
+    return data
 
 # Create your views here.
 @login_required(login_url='/')
@@ -202,7 +209,8 @@ def concluirDemanda(request):
             return JsonResponse({"error":True,"error_message": str(e)}, status=400)
         
         return JsonResponse({"success":True,"success_message": "Demanda concluída com sucesso!"}, status=200)
-    
+
+@login_required(login_url='/') 
 def backlogUser(request):
     usuario = request.GET.get('usuario','')
     if usuario:
@@ -234,3 +242,80 @@ def backlogUser(request):
     else:
         return render(request,'meus_jobs.html')
     
+@login_required(login_url='/') 
+def alteraSolicitacao(request):
+    print(request.POST)
+    #DADOS DA SOLICITAÇÃO
+    titulo = request.POST.get('titulo','')
+    prazo_entrega = request.POST.get('prazo_entrega','')
+    prazo_entrega = convert_data_formatada(prazo_entrega)
+    prioridade = request.POST.get('prioridade','')
+    solicitante = request.POST.get('solicitante','')
+    briefing = request.POST.get('briefing','')
+    pastas = request.POST.getlist('pastas','')
+    usuarios = request.POST.getlist('usuarios','')
+
+    perfil = Perfil.objects.filter(user_profile_id = request.user.id).first()
+    unidade = perfil.und
+
+    solicitacao_id = request.POST.get('solicitacaoId','')
+    
+    if briefing:
+        if usuarios:
+            try:
+                with transaction.atomic():
+                    solicitacao = Solicitacoes.objects.get(id=solicitacao_id)
+                    briefing_antigo = solicitacao.briefing
+                    solicitacao.titulo = titulo
+                    solicitacao.prioridade = prioridade
+                    solicitacao.prazo_entrega = prazo_entrega
+                    data_atual = datetime.now()
+                    data_formatada = data_atual.strftime('%d/%m/%Y %H:%M')
+                    novo_breafing = f'<hr><b>{data_formatada} - {request.user.first_name}</b><br>{briefing}<br>{briefing_antigo}'
+                    solicitacao.briefing = novo_breafing
+                    solicitacao.save()
+
+                    try:
+                        arquivos = request.FILES.getlist('files[]')
+                        for arquivo in arquivos:
+                            fs1 = FileSystemStorage()
+                            filename1 = fs1.save(arquivo.name, arquivo)
+                            arquivo_url = fs1.url(filename1)
+                            arquivos = Arquivos_Solicitacoes.objects.create(rota = arquivo_url,autor_id = request.user.id, solicitacao_id = solicitacao.id)
+
+                    except:
+                        pass
+
+                    #Cria as pastas
+                    for pasta in pastas:
+                        pastas_existentes = Pastas.objects.filter(solicitacao = solicitacao, nome = pasta).all()
+                        if pasta not in pastas_existentes:
+                            pasta_criada = Pastas.objects.create(nome = pasta, solicitacao = solicitacao)
+
+                    for usuario in usuarios:
+                        demandas = Demandas.objects.create(autor = request.user, status = 1,solicitacao_id = solicitacao.id, designante = User.objects.get(id = int(usuario)))
+
+                    return JsonResponse({"success_message": "Solicitação Alterada!"}, status=200)
+                
+            except Exception as e:
+                return JsonResponse({"error":True,"error_message": str(e)}, status=400)
+
+            
+        else:
+            return JsonResponse({"error":True,"error_message": "Ops! Algo deu errado. É necessário designar pelo menos um usuário!"}, status=400)
+    else:
+        solicitacao = Solicitacoes.objects.get(id=solicitacao_id)
+        solicitacao.titulo = titulo
+        solicitacao.prioridade = prioridade
+        solicitacao.prazo_entrega = prazo_entrega
+        solicitacao.save()
+        if usuarios:
+            for usuario in usuarios:
+                    demandas = Demandas.objects.create(autor = request.user, status = 1,solicitacao_id = solicitacao.id, designante = User.objects.get(id = int(usuario)))
+        if pastas:
+            for pasta in pastas:
+                pastas_existentes = Pastas.objects.filter(solicitacao = solicitacao, nome = pasta).all()
+                if pasta not in pastas_existentes:
+                    pasta_criada = Pastas.objects.create(nome = pasta, solicitacao = solicitacao)
+
+    return JsonResponse({"success_message": "Solicitação Alterada!"}, status=200)

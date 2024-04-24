@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'perfil',
     'solicitacoes',
     'meus_jobs',
+    'todos_jobs',
     # 'dashboard',
     # 'solicitacoes',
     # 'minhas_tarefas',
