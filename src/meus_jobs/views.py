@@ -279,9 +279,10 @@ def alteraSolicitacao(request):
                     solicitacao.titulo = titulo
                     solicitacao.prioridade = prioridade
                     solicitacao.prazo_entrega = prazo_entrega
+                    solicitacao.ultima_atualizacao = datetime.now()
                     data_atual = datetime.now()
                     data_formatada = data_atual.strftime('%d/%m/%Y %H:%M')
-                    novo_breafing = f'<hr><b>{data_formatada} - {request.user.first_name}</b><br>{briefing}<br>{briefing_antigo}'
+                    novo_breafing = f'<hr><b>{data_formatada} - {request.user.first_name}</b><br>{briefing}<br><br>{briefing_antigo}'
                     solicitacao.briefing = novo_breafing
                     solicitacao.save()
 
