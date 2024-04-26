@@ -17,7 +17,7 @@ class Solicitacoes(models.Model):
     prazo_entrega = models.DateField(null=False,blank=False)
     briefing = models.TextField(null=False,blank=False)
     prioridade = models.IntegerField(choices=choice_prioridade,null=False,blank=False,default=1)
-    ultima_atualizacao = models.DateTimeField(null=False,blank=False)
+    ultima_atualizacao = models.DateTimeField(null=True,blank=True)
     status = models.IntegerField(choices=choices_status,null=False,blank=False)
 
     def get_prioridade_display(self):
