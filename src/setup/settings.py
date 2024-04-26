@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     'solicitacoes',
     'meus_jobs',
     'todos_jobs',
+    'gerir_time'
     # 'dashboard',
     # 'solicitacoes',
     # 'minhas_tarefas',
