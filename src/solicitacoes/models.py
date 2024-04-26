@@ -17,6 +17,7 @@ class Solicitacoes(models.Model):
     prazo_entrega = models.DateField(null=False,blank=False)
     briefing = models.TextField(null=False,blank=False)
     prioridade = models.IntegerField(choices=choice_prioridade,null=False,blank=False,default=1)
+    ultima_atualizacao = models.DateTimeField(null=False,blank=False)
     status = models.IntegerField(choices=choices_status,null=False,blank=False)
 
     def get_prioridade_display(self):
@@ -55,6 +56,7 @@ class Demandas(models.Model):
     data_entrega = models.DateField(default=timezone.now, null=True, blank=True) 
     devolutiva = models.TextField(null=False,blank=False,default="")
     solicitacao = models.ForeignKey(Solicitacoes,on_delete=models.CASCADE,default=5,related_name='solicitante')
+
     status = models.IntegerField(choices=choice_status,null=False,blank=False)
 
     def get_status_display(self):

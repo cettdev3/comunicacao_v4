@@ -322,6 +322,13 @@ def alteraSolicitacao(request):
         if usuarios:
             for usuario in usuarios:
                     demandas = Demandas.objects.create(autor = request.user, status = 1,solicitacao_id = solicitacao.id, designante = User.objects.get(id = int(usuario)))
+            
+            #obtenho a solicitação e altero o status dela para a fazer
+            solicitacao = Solicitacoes.objects.get(id=solicitacao_id)
+            if solicitacao.status == 4:
+                solicitacao.status = 2
+                solicitacao.save()
+
         if pastas:
             for pasta in pastas:
                 pastas_existentes = Pastas.objects.filter(solicitacao = solicitacao, nome = pasta).all()
