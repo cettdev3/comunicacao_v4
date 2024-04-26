@@ -1,0 +1,96 @@
+<div class="modal-dialog modal-lg">
+    <div class="modal-content">
+        <div class="modal-body p-4">
+            <div>
+                <h4 class="mt-2" style="text-align: center;">Alteração de Usuário</h4>
+                        <div class="row">
+                            <form id="form_altera_cadastro">
+                                <div class="row">
+                
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label for="nome" class="form-label">Nome Completo:</label>
+                                        <input type="text" value="{{usuario.first_name}}" id="nome_modal" name="nome_modal" class="form-control">
+                                    </div>
+                                </div>
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Email:</label>
+                                        <input type="email" value="{{usuario.email}}" id="email_modal" name="email_modal" class="form-control">
+                                    </div>
+                                </div>
+        
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label for="usuario" class="form-label">Usuário:</label>
+                                        <input type="text" value="{{usuario.username}}" id="usuario_modal" name="usuario_modal" class="form-control">
+                                    </div>
+                                </div>
+        
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label for="senha" class="form-label">Senha:</label>
+                                        <input type="password" id="senha_modal" name="senha_modal" class="form-control">
+                                    </div>
+                                </div>
+        
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label for="cargo" class="form-label">Cargo:</label>
+                                        <select class="form-control select2" name="cargo_modal" id="cargo_modal" data-toggle="select2">
+                                            <option value="1" {% if usuario.perfil.cargo == 1 %} selected {% endif %}>Gerente</option>
+                                            <option value="2" {% if usuario.perfil.cargo == 2 %} selected {% endif %}>Cordenador</option>
+                                            <option value="3" {% if usuario.perfil.cargo == 3 %} selected {% endif %}>Produtor</option>
+                                            <option value="4" {% if usuario.perfil.cargo == 4 %} selected {% endif %}>Redator</option>
+                                            <option value="5" {% if usuario.perfil.cargo == 5 %} selected {% endif %}>Designer</option>
+                                            <option value="6" {% if usuario.perfil.cargo == 6 %} selected {% endif %}>Externo</option>
+                                            
+                                        </select>
+                                    </div>
+                                </div>
+           
+                                <div class="col-4">
+                                    <div class="mb-3">
+                                        <label for="unidade" class="form-label">Unidade:</label>
+                                        <select class="form-control select2" name="unidade_modal" id="unidade_modal" data-toggle="select2">
+                                            <option></option>
+                                            <option value="1" {% if usuario.perfil.und == 1 %} selected {% endif %}>EFG</option>
+                                            <option value="2" {% if usuario.perfil.und == 2 %} selected {% endif %}>COTEC</option>
+                                            <option value="3" {% if usuario.perfil.und == 3 %} selected {% endif %}>CETT</option>
+                                            <option value="4" {% if usuario.perfil.und == 4 %} selected {% endif %}>BASILEU</option>
+                                            <option value="5" {% if usuario.perfil.und == 5 %} selected {% endif %}>EXTERNO</option>
+                                            <option value="6" {% if usuario.perfil.und == 6 %} selected {% endif %}>GERAL</option>
+        
+                                            
+                                        </select>
+                                    </div>
+                                </div>
+        
+                                <div class="col-4">
+                                    <div class="mt-2">
+               
+                                        <div class="form-check form-checkbox-danger mb-2">
+                                            <input type="checkbox" class="form-check-input" id="customCheckcolor5" {% if usuario.is_active == 0 %} checked {% endif %} >
+                                            <label class="form-check-label" for="customCheckcolor5">Suspender Acesso</label>
+                                        </div>
+                                    </div>
+                                </div>
+        
+        
+                                <div class="col-8">
+                    
+                                        <button onclick="alterarUsuario('{{usuario.id}}')" type="button" class="btn btn-info form-control"><i class="ri-pencil-fill"></i> Alterar Usuário</button>
+                             
+                                </div>
+                               
+                            </div>
+                        </form>
+
+                            
+                            
+                        </div>
+                   
+            </div>
+        </div>
+    </div><!-- /.modal-content -->
+</div><!-- /.modal-dialog -->

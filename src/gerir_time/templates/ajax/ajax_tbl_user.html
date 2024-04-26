@@ -1,0 +1,47 @@
+{% for usuario in usuarios %}
+    <tr onclick="OpenModalUser('{{usuario.id}}')" style="cursor: pointer;">
+        <td>
+        {% if usuario.perfil.cargo == 1 %}
+            <span class="badge bg-primary text-light">{{usuario.perfil.get_cargo_display}}</span>
+        {% elif usuario.perfil.cargo == 2 %}
+            <span class="badge bg-secondary text-light">{{usuario.perfil.get_cargo_display}}</span>
+        {% elif usuario.perfil.cargo == 3 %}
+            <span class="badge bg-success text-light">{{usuario.perfil.get_cargo_display}}</span>
+        {% elif usuario.perfil.cargo == 4 %}
+            <span class="badge bg-danger text-light">{{usuario.perfil.get_cargo_display}}</span>
+        {% elif usuario.perfil.cargo == 5 %}
+            <span class="badge bg-warning text-light">{{usuario.perfil.get_cargo_display}}</span>
+        {% elif usuario.perfil.cargo == 6 %}
+            <span class="badge bg-info text-light">{{usuario.perfil.get_cargo_display}}</span>
+        {% else %}
+            <span class="badge bg-dark text-light">Cargo Não Informado</span>
+        {% endif %}
+        </td>
+        <td>
+        {% if usuario.perfil.foto %}
+        <img src="{{foto.foto}}" id="avatar_topo" alt="user-image" width="36" height="36" class="rounded-circle">
+        {% else %}
+        <img src="https://ui-avatars.com/api/?name={{usuario.first_name}}&color=7F9CF5&background=EBF4FF" id="avatar_topo" alt="user-image" width="36" height="36" class="rounded-circle">
+        {% endif %}
+        </td>
+        <td>{{usuario.first_name}}</td>
+        <td>{{usuario.username}}</td>
+        <td>{{usuario.email}}</td>
+        <td>
+        {% if usuario.perfil.und == 1 or usuario.perfil.und == 6 %}
+            <span class="badge bg-primary text-light">{{usuario.perfil.get_und_display}}</span>
+        {% elif usuario.perfil.und == 2 %}
+            <span class="badge bg-secondary text-light">{{usuario.perfil.get_und_display}}</span>
+        {% elif usuario.perfil.und == 3 %}
+            <span class="badge bg-success text-light">{{usuario.perfil.get_und_display}}</span>
+        {% elif usuario.perfil.und == 4 %}
+            <span class="badge bg-danger text-light">{{usuario.perfil.get_und_display}}</span>
+        {% elif usuario.perfil.und == 5 %}
+            <span class="badge bg-warning text-light">{{usuario.perfil.get_und_display}}</span>
+        {% else %}
+            <span class="badge bg-dark text-light">Unidade Não Informada</span>
+        {% endif %}
+        
+    </td>
+    </tr>
+    {% endfor %}
