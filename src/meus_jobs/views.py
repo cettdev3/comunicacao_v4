@@ -232,36 +232,67 @@ def backlogUser(request):
     usuario = request.GET.get('usuario','')
     demanda = request.GET.get('demanda','')
 
-    if usuario:
+    if demanda == '0':
+        if usuario:
 
-        cargo_do_usuario_logado = Perfil.objects.filter(user_profile_id=usuario).first()
-        usuarios = User.objects.all()
+            cargo_do_usuario_logado = Perfil.objects.filter(user_profile_id=usuario).first()
+            usuarios = User.objects.all()
 
-        # Filtra todas as demandas do usuário logado
-        demandas_do_usuario = Demandas.objects.filter(designante=usuario)
-        
-        # Obtém as solicitações correspondentes às demandas do usuário
-        solicitacoes_com_demandas_do_usuario = Solicitacoes.objects.filter(id__in=demandas_do_usuario.values('solicitacao_id')).distinct()
-
-        # Itera sobre cada solicitação e adiciona os totais de demandas e demandas concluídas
-        for solicitacao in solicitacoes_com_demandas_do_usuario:
-            # Calcula o total de demandas da solicitação
-            total_demandas_solicitacao = demandas_do_usuario.filter(solicitacao=solicitacao).count()
-
-            # Calcula o total de demandas em aprovação dentro da solicitação
-            demandas_em_aprovacao_solicitacao = demandas_do_usuario.filter(solicitacao=solicitacao, status=3).count()
-
-            # Calcula o total de demandas concluídas da solicitação
-            demandas_concluidas_solicitacao = demandas_do_usuario.filter(solicitacao=solicitacao, status=4).count()
+            # Filtra todas as demandas do usuário logado
+            demandas_do_usuario = Demandas.objects.filter(designante=usuario)
             
-            # Adiciona os totais à solicitação
-            solicitacao.total_demandas = total_demandas_solicitacao
-            solicitacao.demandas_concluidas = demandas_concluidas_solicitacao
-            solicitacao.demandas_em_aprovacao = demandas_em_aprovacao_solicitacao
-        return render(request,'ajax/backlog.html',{'solicitacoes':solicitacoes_com_demandas_do_usuario,'usuario':cargo_do_usuario_logado,'usuarios':usuarios})
+            # Obtém as solicitações correspondentes às demandas do usuário
+            solicitacoes_com_demandas_do_usuario = Solicitacoes.objects.filter(id__in=demandas_do_usuario.values('solicitacao_id'),).distinct()
+
+            # Itera sobre cada solicitação e adiciona os totais de demandas e demandas concluídas
+            for solicitacao in solicitacoes_com_demandas_do_usuario:
+                # Calcula o total de demandas da solicitação
+                total_demandas_solicitacao = demandas_do_usuario.filter(solicitacao=solicitacao).count()
+
+                # Calcula o total de demandas em aprovação dentro da solicitação
+                demandas_em_aprovacao_solicitacao = demandas_do_usuario.filter(solicitacao=solicitacao, status=3).count()
+
+                # Calcula o total de demandas concluídas da solicitação
+                demandas_concluidas_solicitacao = demandas_do_usuario.filter(solicitacao=solicitacao, status=4).count()
+                
+                # Adiciona os totais à solicitação
+                solicitacao.total_demandas = total_demandas_solicitacao
+                solicitacao.demandas_concluidas = demandas_concluidas_solicitacao
+                solicitacao.demandas_em_aprovacao = demandas_em_aprovacao_solicitacao
+            return render(request,'ajax/backlog.html',{'solicitacoes':solicitacoes_com_demandas_do_usuario,'usuario':cargo_do_usuario_logado,'usuarios':usuarios})
+        else:
+            return render(request,'meus_jobs.html')
     else:
-        return render(request,'meus_jobs.html')
-    
+        if usuario:
+
+            cargo_do_usuario_logado = Perfil.objects.filter(user_profile_id=usuario).first()
+            usuarios = User.objects.all()
+
+            # Filtra todas as demandas do usuário logado
+            demandas_do_usuario = Demandas.objects.filter(designante=usuario,solicitacao_id=demanda)
+            print(len(demandas_do_usuario))
+            # Obtém as solicitações correspondentes às demandas do usuário
+            solicitacoes_com_demandas_do_usuario = Solicitacoes.objects.filter(id__in=demandas_do_usuario.values('solicitacao_id')).distinct()
+            print(len(solicitacoes_com_demandas_do_usuario))
+            # Itera sobre cada solicitação e adiciona os totais de demandas e demandas concluídas
+            for solicitacao in solicitacoes_com_demandas_do_usuario:
+                # Calcula o total de demandas da solicitação
+                total_demandas_solicitacao = demandas_do_usuario.filter(solicitacao=solicitacao).count()
+
+                # Calcula o total de demandas em aprovação dentro da solicitação
+                demandas_em_aprovacao_solicitacao = demandas_do_usuario.filter(solicitacao=solicitacao, status=3).count()
+
+                # Calcula o total de demandas concluídas da solicitação
+                demandas_concluidas_solicitacao = demandas_do_usuario.filter(solicitacao=solicitacao, status=4).count()
+                
+                # Adiciona os totais à solicitação
+                solicitacao.total_demandas = total_demandas_solicitacao
+                solicitacao.demandas_concluidas = demandas_concluidas_solicitacao
+                solicitacao.demandas_em_aprovacao = demandas_em_aprovacao_solicitacao
+            return render(request,'ajax/backlog.html',{'solicitacoes':solicitacoes_com_demandas_do_usuario,'usuario':cargo_do_usuario_logado,'usuarios':usuarios})
+        else:
+            return render(request,'meus_jobs.html')
+        
 @login_required(login_url='/') 
 def alteraSolicitacao(request):
 
@@ -366,3 +397,13 @@ def concluirJob(request):
     except Exception as e:
         return JsonResponse({"error":True,"error_message": str(e)}, status=400)
     
+@login_required(login_url='/') 
+def showtaskusers(request):
+    userid = request.GET.get('userid','')
+    demandas_do_usuario = Demandas.objects.filter(designante=userid)
+    
+
+    # Obtém as solicitações correspondentes às demandas do usuário
+    solicitacoes_com_demandas_do_usuario = Solicitacoes.objects.filter(id__in=demandas_do_usuario.values('solicitacao_id')).distinct()
+
+    return render(request,'ajax/select_task_for_user.html',{'demandas':solicitacoes_com_demandas_do_usuario})

@@ -32,7 +32,7 @@
                 <div class="col-6">
                     {% if usuario.cargo <= 2 %}
                     <label>Buscar por usuário:</label>
-                    <select class="form-control select2 col-6" data-toggle="select2" name="usuario_backlog" id="usuario_backlog" onchange="backlog()">
+                    <select class="form-control select2 col-6" data-toggle="select2" name="usuario_backlog" id="usuario_backlog" onchange="demand()">
                         {% for usuario in usuarios %}
                         <option value="{{usuario.id}}" {% if usuario.id == request.user.id %} selected {% endif %}>{{usuario.first_name}}</option>
                         {% endfor %}
@@ -373,9 +373,33 @@ function showSelectedFilesDinamic(n) {
     }
 }
 
+function demand(){
+    var usuario_backlog =  document.getElementById('usuario_backlog').value;
+
+    const url = '/ajax/show-tasks-for-user';
+
+    $.ajax({
+        url,
+        type: 'GET',
+        data: { 'userid': usuario_backlog },
+        success: function(data) {
+            $("#demandas").html(data);
+            resetUser();
+            
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Ops!',
+                text: 'Não foi possível obter resultados!'
+            });
+        }
+    });
+}
+
 function backlog(){
     usuario = document.getElementById('usuario_backlog').value;
-    demanda = usuario = document.getElementById('demanda_backlog').value;
+    demanda =  document.getElementById('demanda_backlog').value;
     const url = '/ajax/backlog-user';
 
     $.ajax({
@@ -396,5 +420,26 @@ function backlog(){
     });
 }
 
+function resetUser(){
+    usuario = document.getElementById('usuario_backlog').value;
+    const url = '/ajax/backlog-user';
+
+    $.ajax({
+        url,
+        type: 'GET',
+        data: { 'usuario': usuario,'demanda': "0" },
+        success: function(data) {
+            $("#backlog").html(data);
+            
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Ops!',
+                text: 'Não foi possível obter resultados!'
+            });
+        }
+    });
+}
 </script>
 {% endblock %}

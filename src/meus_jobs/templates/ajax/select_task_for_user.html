@@ -1,0 +1,13 @@
+
+<label>Buscar por demanda:</label>
+<select class="form-control select2 col-6" data-toggle="select2" name="demanda_backlog" id="demanda_backlog" onchange="backlog()">
+    <option value="0" selected>Todos</option>
+    {% for demanda in demandas %}
+    <option value="{{demanda.id}}" >{{demanda.titulo}}</option>
+    {% endfor %}
+</select>
+
+
+<script>
+     $("#demanda_backlog").select2()
+     </script>
