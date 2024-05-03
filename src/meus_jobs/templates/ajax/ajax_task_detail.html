@@ -308,7 +308,7 @@
 
                                                     
                                                     {% endif %}
-                                                    {% if demanda.autor_id == request.user.id and demanda.status == 3 %}
+                                                    {% if demanda.autor_id == request.user.id and demanda.status == 3 and demanda.gerencia == 0 %}
                                                     <div class="row mb-3">
                                                         
                                                         <div class="col-6"></div>
@@ -317,7 +317,7 @@
                                                     </div>
                                                     {% endif %}
 
-                                                    {% if usuario_logado.cargo == 1 and demanda.status == 3 %}
+                                                    {% if usuario_logado.cargo == 1 and demanda.status == 3 and demanda.gerencia == 1 %}
                                                     <div class="row mb-3">
                                                         
                                                         <div class="col-4" ></div>

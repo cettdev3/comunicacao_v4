@@ -20,6 +20,7 @@ def Minhas_Tarefas(request):
     #obtem o cargo do usuário logado
     cargo_do_usuario_logado = Perfil.objects.filter(user_profile_id=request.user.id).first()
     usuarios = User.objects.all()
+
     # Filtra todas as demandas do usuário logado
     demandas_do_usuario = Demandas.objects.filter(designante=request.user.id)
     
@@ -109,6 +110,9 @@ def Revisar_Demanda(request):
         motivo = request.POST.get('motivo_devolucao','')
         
         #Se o solicitante for o gerente apenas preencher o motivo, caso contrário executa o código abaixo
+        demanda_usuario = Demandas.objects.get(id=id_demanda)
+        demanda_usuario.gerencia = 0
+        demanda_usuario.save()
 
         if meu_perfil.cargo == 1:
 
@@ -180,12 +184,16 @@ def aprovarDemanda(request):
         demanda_gerente.save()
         demanda_cordendador.status = 4
         demanda_cordendador.save()
+        demanda.gerencia = 1
+        demanda.save()
         return JsonResponse({"success":True,"success_message": "Demanda encaminhada com sucesso!"}, status=200)
     else:
         #gera uma demanda para o gerente para aprovação
-        demanda = Demandas.objects.create(autor_id=request.user.id, status=1,solicitacao_id=demanda.solicitacao_id, designante_id=int(gerente),descricao_entrega="Aprovação da demanda")
+        demand = Demandas.objects.create(autor_id=request.user.id, status=1,solicitacao_id=demanda.solicitacao_id, designante_id=int(gerente),descricao_entrega="Aprovação da demanda")
         demanda_cordendador.status = 4
         demanda_cordendador.save()
+        demanda.gerencia = 1
+        demanda.save()
         return JsonResponse({"success":True,"success_message": "Demanda encaminhada com sucesso!"}, status=200)
     
 @login_required(login_url='/') 
@@ -222,10 +230,13 @@ def concluirDemanda(request):
 @login_required(login_url='/') 
 def backlogUser(request):
     usuario = request.GET.get('usuario','')
+    demanda = request.GET.get('demanda','')
+
     if usuario:
 
         cargo_do_usuario_logado = Perfil.objects.filter(user_profile_id=usuario).first()
         usuarios = User.objects.all()
+
         # Filtra todas as demandas do usuário logado
         demandas_do_usuario = Demandas.objects.filter(designante=usuario)
         
