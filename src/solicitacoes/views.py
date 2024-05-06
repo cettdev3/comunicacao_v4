@@ -6,6 +6,7 @@ from django.http import JsonResponse
 from django.core.files.storage import FileSystemStorage
 from .models import Arquivos_Demandas,Arquivos_Solicitacoes,Solicitacoes,Pastas,Demandas,Perfil
 from django.db import transaction
+
 def convert_data_formatada(data):
 
     data = data.split('/')

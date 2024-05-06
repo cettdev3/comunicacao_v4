@@ -26,8 +26,30 @@
                     </div>
                   
                 </div>
+                <div class="col-6">
+                    {% if usuario.cargo <= 2 %}
+                    <label>Buscar por Gerente/Cordenador:</label>
+                    <select class="form-control select2 col-6" data-toggle="select2" name="usuario_backlog" id="usuario_backlog" onchange="demand()">
+                        <option value="0" selected>Todos</option>
+                        {% for superior in superiores %}
+                        <option value="{{superior.id}}" {% if usuario.id == request.user.id %} selected {% endif %}>{{superior.first_name}}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                </div>
+                <div class="col-6" id="demandas">
+                    {% if usuario.cargo <= 2 %}
+                    <label>Buscar Por Job:</label>
+                    <select class="form-control select2 col-6" data-toggle="select2" name="demanda_backlog" id="demanda_backlog" onchange="backlog()">
+                        <option value="0" >Todos</option>
+                        {% for solicitacao in solicitacoes %}
+                        <option value="{{solicitacao.id}}" >{{solicitacao.titulo}}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                </div>
             </div>     
-
+            
             <div class="row mt-2" id="backlog" >
                 <div class="col-12">
                     <div class="board">
@@ -309,6 +331,76 @@ function backlog(){
         url,
         type: 'GET',
         data: { 'usuario': usuario },
+        success: function(data) {
+            $("#backlog").html(data);
+            
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Ops!',
+                text: 'Não foi possível obter resultados!'
+            });
+        }
+    });
+}
+
+
+function demand(){
+    var usuario_backlog =  document.getElementById('usuario_backlog').value;
+
+    const url = '/ajax/show-tasks-for-user-all';
+
+    $.ajax({
+        url,
+        type: 'GET',
+        data: { 'userid': usuario_backlog },
+        success: function(data) {
+            $("#demandas").html(data);
+            resetUser();
+            
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Ops!',
+                text: 'Não foi possível obter resultados!'
+            });
+        }
+    });
+}
+
+function backlog(){
+    usuario = document.getElementById('usuario_backlog').value;
+    demanda =  document.getElementById('demanda_backlog').value;
+    const url = '/ajax/backlog-user-all';
+
+    $.ajax({
+        url,
+        type: 'GET',
+        data: { 'usuario': usuario,'demanda': demanda },
+        success: function(data) {
+            $("#backlog").html(data);
+            
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Ops!',
+                text: 'Não foi possível obter resultados!'
+            });
+        }
+    });
+}
+
+function resetUser(){
+    usuario = document.getElementById('usuario_backlog').value;
+    const url = '/ajax/backlog-user-all';
+
+    $.ajax({
+        url,
+        type: 'GET',
+        data: { 'usuario': usuario,'demanda': "0" },
         success: function(data) {
             $("#backlog").html(data);
             

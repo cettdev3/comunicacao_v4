@@ -1,0 +1,142 @@
+{% load static %}
+<div class="col-12">
+    <div class="board">
+        <div class="tasks" data-plugin="dragula" data-containers='["task-list-one", "task-list-two", "task-list-three", "task-list-four","task-list-five"]'>
+            <h5 class="mt-0 task-header">A FAZER </h5>
+            
+            <div id="task-list-one" class="task-list-items">
+
+                {% for solicitacao in solicitacoes %}
+                    {% if solicitacao.demandas_concluidas == 0 and solicitacao.demandas_em_aprovacao == 0 %}
+                        <div class="card mb-0" task_id="1">
+                            <div class="card-body p-3">
+                            <span class="float-end badge bg-success-subtle text-success"><b>Prazo: {{ solicitacao.prazo_entrega|date:"d/m/Y" }}</b></span>
+                                <small class="text-muted"></small>
+
+                                <h5 class="my-2 fs-16">
+                                    <a href="#" onclick="modalTaskView('{{solicitacao.id}}')"  class="text-body">{{ solicitacao.titulo }}</a>
+                                </h5>
+
+                                <p class="mb-0">
+                                    <span class="pe-2 text-nowrap mb-2 d-inline-block">
+                                        <i class=" ri-group-fill text-muted"></i>
+                                        {{solicitacao.demandas_concluidas}}/{{solicitacao.total_demandas}}
+                                    </span>
+                                  
+                                </p>
+
+                            
+
+                                <div class="avatar-group mt-2">
+                                    <a href="javascript: void(0);" class="avatar-group-item"
+                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="{{solicitacao.autor.first_name}}">
+                                        <img src="{% static 'layouts/assets/images/users/avatar-1.jpg' %}" alt=""
+                                            class="rounded-circle avatar-xs"> <span style="color:gray"> {{solicitacao.autor.first_name}}</span>
+                                    </a>
+                                
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+                
+            </div> <!-- end company-list-1-->
+        </div>
+
+        <div class="tasks">
+            <h5 class="mt-0 task-header text-uppercase">Fazendo</h5>
+            
+            <div id="task-list-two" class="task-list-items">
+                {% for solicitacao in solicitacoes %}
+                                            
+
+                    {% if solicitacao.demandas_em_aprovacao_solicitacao > 0 or solicitacao.demandas_concluidas > 0 and solicitacao.demandas_concluidas < solicitacao.total_demandas %}
+                        <div class="card mb-0" task_id="1">
+                            <div class="card-body p-3">
+                            <span class="float-end badge bg-success-subtle text-success"><b>Prazo: {{ solicitacao.prazo_entrega|date:"d/m/Y" }}</b></span>
+                                <small class="text-muted"></small>
+
+                                <h5 class="my-2 fs-16">
+                                    <a href="#" onclick="modalTaskView('{{solicitacao.id}}')"  class="text-body">{{ solicitacao.titulo }}</a>
+                                </h5>
+
+                                <p class="mb-0">
+                                    <span class="pe-2 text-nowrap mb-2 d-inline-block">
+                                        <i class=" ri-group-fill text-muted"></i>
+                                        {{solicitacao.demandas_concluidas}}/{{solicitacao.total_demandas}}
+                                    </span>
+                                    <!-- <span class="text-nowrap mb-2 d-inline-block">
+                                        <i class="ri-discuss-line text-muted"></i>
+                                        <b>2</b> Comentários
+                                    </span> -->
+                                </p>
+
+                            
+
+                                <div class="avatar-group mt-2">
+                                    <a href="javascript: void(0);" class="avatar-group-item"
+                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="{{solicitacao.autor.first_name}}">
+                                        <img src="{% static 'layouts/assets/images/users/avatar-1.jpg' %}" alt=""
+                                            class="rounded-circle avatar-xs"> <span style="color:gray"> {{solicitacao.autor.first_name}}</span>
+                                    </a>
+                                
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+            </div> <!-- end company-list-2-->
+        </div>
+
+     
+
+        <div class="tasks">
+            <h5 class="mt-0 task-header text-uppercase">Concluído </h5>
+            <div id="task-list-three" class="task-list-items">
+                {% for solicitacao in solicitacoes %}
+                
+                    {% if solicitacao.total_demandas == solicitacao.demandas_concluidas %}
+                        <div class="card mb-0" task_id="1">
+                            <div class="card-body p-3">
+                            <span class="float-end badge bg-success-subtle text-success"><b>Prazo: {{ solicitacao.prazo_entrega|date:"d/m/Y" }}</b></span>
+                                <small class="text-muted"></small>
+
+                                <h5 class="my-2 fs-16">
+                                    <a href="#" onclick="modalTaskView('{{solicitacao.id}}')"  class="text-body">{{ solicitacao.titulo }}</a>
+                                </h5>
+
+                                <p class="mb-0">
+                                    <span class="pe-2 text-nowrap mb-2 d-inline-block">
+                                        <i class=" ri-group-fill text-muted"></i>
+                                        {{solicitacao.demandas_concluidas}}/{{solicitacao.total_demandas}}
+                                    </span>
+                                    <!-- <span class="text-nowrap mb-2 d-inline-block">
+                                        <i class="ri-discuss-line text-muted"></i>
+                                        <b>2</b> Comentários
+                                    </span> -->
+                                </p>
+
+                            
+
+                                <div class="avatar-group mt-2">
+                                    <a href="javascript: void(0);" class="avatar-group-item"
+                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="{{solicitacao.autor.first_name}}">
+                                        <img src="{% static 'layouts/assets/images/users/avatar-1.jpg' %}" alt=""
+                                            class="rounded-circle avatar-xs"> <span style="color:gray"> {{solicitacao.autor.first_name}}</span>
+                                    </a>
+                                
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+
+            </div> <!-- end company-list-3-->
+        </div>
+
+    </div> <!-- end .board-->
+</div> <!-- end col -->
