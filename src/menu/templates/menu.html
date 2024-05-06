@@ -384,14 +384,14 @@
                                 <span> Meus Jobs</span>
                             </a>
                         </li>
-
+                        {% if cargo <= 2 %}
                            <li class="side-nav-item">
                             <a href="/all-jobs" class="side-nav-link">
                                 <i class="ri-list-check-3"></i> 
                                 <span> Todos os Jobs</span>
                             </a>
                         </li>
-                        
+
 
                            <li class="side-nav-item">
                             <a href="/gerir-time" class="side-nav-link">
@@ -400,7 +400,7 @@
                             </a>
                         </li>
                         
-
+                        {% endif %}
                     </ul>
                     <!--- End Sidemenu -->
 
