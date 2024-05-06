@@ -6,6 +6,7 @@ from django.core.files.storage import FileSystemStorage
 from django.http import JsonResponse
 from django.contrib.auth.models import User
 from django.shortcuts import redirect
+from django.db.models import Q
 
 # Create your views here.
 @login_required(login_url='/')
@@ -110,7 +111,7 @@ def backlogUserAll(request):
             usuarios = User.objects.all()
 
             # Filtra todas as demandas do usuário logado
-            demandas_do_usuario = Demandas.objects.filter(designante=usuario,solicitacao_id=demanda)
+            demandas_do_usuario = Demandas.objects.filter(autor_id=usuario,solicitacao_id=demanda)
             print(len(demandas_do_usuario))
             # Obtém as solicitações correspondentes às demandas do usuário
             solicitacoes_com_demandas_do_usuario = Solicitacoes.objects.filter(id__in=demandas_do_usuario.values('solicitacao_id'),autor_id=usuario).distinct()
@@ -137,10 +138,12 @@ def backlogUserAll(request):
 @login_required(login_url='/') 
 def showtaskusersAll(request):
     userid = request.GET.get('userid','')
-    demandas_do_usuario = Demandas.objects.filter(designante=userid)
-    
+    demandas_do_usuario = Demandas.objects.filter(autor_id=userid)
+                                           
+                                                  
+
 
     # Obtém as solicitações correspondentes às demandas do usuário
     solicitacoes_com_demandas_do_usuario = Solicitacoes.objects.filter(id__in=demandas_do_usuario.values('solicitacao_id')).distinct()
-
-    return render(request,'ajax/select_task_for_user.html',{'demandas':solicitacoes_com_demandas_do_usuario})
+    print(len(solicitacoes_com_demandas_do_usuario))
+    return render(request,'ajax/select_task_for_user_all.html',{'demandas':solicitacoes_com_demandas_do_usuario})
