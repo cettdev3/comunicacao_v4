@@ -25,7 +25,7 @@ def Solicitacao(request):
     #OBTÉM OS USUÁRIOS CORDENADORES
     usuarios_cordenadores = User.objects.filter(id__in = Perfil.objects.filter(cargo = 2).values('user_profile_id'))
     print(usuarios_cordenadores)
-    return render(request,'solicitacoes.html',{'cargo':cargo,'usuarios':usuarios,'usuarios_cordenadores':usuarios_cordenadores})
+    return render(request,'solicitacoes.html',{'cargo':cargo,'usuarios':usuarios,'usuarios_cordenadores':usuarios_cordenadores,'cargo':cargo})
 
 @login_required(login_url='/')
 def Realizar_Solicitacao(request):

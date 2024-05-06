@@ -21,6 +21,9 @@ def Minhas_Tarefas(request):
     cargo_do_usuario_logado = Perfil.objects.filter(user_profile_id=request.user.id).first()
     usuarios = User.objects.all()
 
+    cargo = Perfil.objects.filter(user_profile_id = request.user.id).values('cargo')
+    cargo = cargo[0]['cargo']
+
     # Filtra todas as demandas do usuário logado
     demandas_do_usuario = Demandas.objects.filter(designante=request.user.id)
     
@@ -42,7 +45,7 @@ def Minhas_Tarefas(request):
         solicitacao.total_demandas = total_demandas_solicitacao
         solicitacao.demandas_concluidas = demandas_concluidas_solicitacao
         solicitacao.demandas_em_aprovacao = demandas_em_aprovacao_solicitacao
-    return render(request,'meus_jobs.html',{'solicitacoes':solicitacoes_com_demandas_do_usuario,'usuario':cargo_do_usuario_logado,'usuarios':usuarios})
+    return render(request,'meus_jobs.html',{'solicitacoes':solicitacoes_com_demandas_do_usuario,'usuario':cargo_do_usuario_logado,'usuarios':usuarios,'cargo':cargo})
 
 @login_required(login_url='/')
 def Show_Modal_Task(request):

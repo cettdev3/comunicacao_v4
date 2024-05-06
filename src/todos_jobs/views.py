@@ -16,6 +16,9 @@ def All_Jobs(request):
     # Obtém as solicitações correspondentes às demandas do usuário
     solicitacoes_com_demandas_do_usuario = Solicitacoes.objects.filter(id__in=demandas_do_usuario.values('solicitacao_id')).distinct()
 
+    cargo = Perfil.objects.filter(user_profile_id = request.user.id).values('cargo')
+    cargo = cargo[0]['cargo']
+
     #Obtenho todos os usuários com perfil a qual o cargo seja menor que 2
     usuarios_com_perfil_menor_que_2 = User.objects.filter(perfil__cargo__lte=2).all()
 
@@ -38,7 +41,7 @@ def All_Jobs(request):
         solicitacao.demandas_concluidas = demandas_concluidas_solicitacao
         solicitacao.demandas_em_aprovacao = demandas_em_aprovacao_solicitacao
         solicitacao.demandas_a_fazer = demandas_a_fazer
-    return render(request,'todos_jobs.html',{'solicitacoes':solicitacoes_com_demandas_do_usuario,'usuario':cargo_do_usuario_logado,'superiores':usuarios_com_perfil_menor_que_2})
+    return render(request,'todos_jobs.html',{'solicitacoes':solicitacoes_com_demandas_do_usuario,'usuario':cargo_do_usuario_logado,'superiores':usuarios_com_perfil_menor_que_2,'cargo':cargo})
 
 def backlogUserAll(request):
     usuario = request.GET.get('usuario','')

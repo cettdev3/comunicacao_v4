@@ -29,7 +29,10 @@ def Gerir_Time(request):
         usuario.save()
     foto = Perfil.objects.filter(user_profile_id = request.user.id).first()
     perm = foto.cargo
-    return render(request,'gerir_time.html',{'usuarios':usuarios,'foto':foto, 'perm':perm})
+
+    cargo = Perfil.objects.filter(user_profile_id = request.user.id).values('cargo')
+    cargo = cargo[0]['cargo']
+    return render(request,'gerir_time.html',{'usuarios':usuarios,'foto':foto, 'perm':perm,'cargo':cargo})
 
 @login_required(login_url='/')
 def Cadastrar_Usuario(request):
