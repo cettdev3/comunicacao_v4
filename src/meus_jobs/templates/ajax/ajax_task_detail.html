@@ -148,7 +148,7 @@
                                                         {% for usuario in usuarios %}
                                                         <div class="col-3 mb-3">
                                                             <div class="form-check form-checkbox-dark mb-2">
-                                                                <input type="checkbox" class="form-check-input" id="customCheckcolor{{usuario.id}}" name="usuarios" value="{{usuario.id}}">
+                                                                <input type="checkbox" {% if usuario.id in usuarios_demanda %} checked {% endif %} class="form-check-input" id="customCheckcolor{{usuario.id}}" name="usuarios" value="{{usuario.id}}">
                                                                 <label class="form-check-label" for="customCheckcolor{{usuario.id}}">{{usuario.first_name}}</label>
                                                             </div>
                                                         </div>

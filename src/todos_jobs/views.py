@@ -14,7 +14,7 @@ def All_Jobs(request):
     demandas_do_usuario = Demandas.objects.all()
     
     # Obtém as solicitações correspondentes às demandas do usuário
-    solicitacoes_com_demandas_do_usuario = Solicitacoes.objects.filter(id__in=demandas_do_usuario.values('solicitacao_id')).distinct()
+    solicitacoes_com_demandas_do_usuario = Solicitacoes.objects.filter(id__in=demandas_do_usuario.values('solicitacao_id'),autor_id=request.user.id).distinct()
 
     cargo = Perfil.objects.filter(user_profile_id = request.user.id).values('cargo')
     cargo = cargo[0]['cargo']
@@ -23,7 +23,8 @@ def All_Jobs(request):
     usuarios_com_perfil_menor_que_2 = User.objects.filter(perfil__cargo__lte=2).all()
 
     cargo_do_usuario_logado = Perfil.objects.filter(user_profile_id=request.user.id).first()
-    # Itera sobre cada solicitação e adiciona os totais de demandas e demandas concluídas
+
+    # # Itera sobre cada solicitação e adiciona os totais de demandas e demandas concluídas
     for solicitacao in solicitacoes_com_demandas_do_usuario:
         # Calcula o total de demandas da solicitação
         total_demandas_solicitacao = demandas_do_usuario.filter(solicitacao=solicitacao).count()
@@ -31,16 +32,24 @@ def All_Jobs(request):
         demandas_a_fazer = demandas_do_usuario.filter(solicitacao=solicitacao, status= 1).count()
 
         # Calcula o total de demandas em aprovação dentro da solicitação
-        demandas_em_aprovacao_solicitacao = demandas_do_usuario.filter(solicitacao=solicitacao, status=3).count()
+        demandas_em_aprovacao_solicitacao = demandas_do_usuario.filter(solicitacao=solicitacao, status=3, gerencia = 1).count()
 
         # Calcula o total de demandas concluídas da solicitação
         demandas_concluidas_solicitacao = demandas_do_usuario.filter(solicitacao=solicitacao, status=4).count()
-        
+
+        #Obtem a demanda do cordenador pendentes
+        demandas_coordenador_pendente = demandas_do_usuario.filter(descricao_entrega="Revisão da demanda",solicitacao_id=solicitacao.id,status=1).count()
+
+        #Obtem a demanda do coordenador concluida
+        demandas_coordenador_concluida = demandas_do_usuario.filter(descricao_entrega="Revisão da demanda",solicitacao_id=solicitacao.id,status=4).count()
+
         # Adiciona os totais à solicitação
         solicitacao.total_demandas = total_demandas_solicitacao
         solicitacao.demandas_concluidas = demandas_concluidas_solicitacao
         solicitacao.demandas_em_aprovacao = demandas_em_aprovacao_solicitacao
         solicitacao.demandas_a_fazer = demandas_a_fazer
+        solicitacao.demandas_coordenador_pendente = demandas_coordenador_pendente
+        solicitacao.demandas_coordenador_concluida = demandas_coordenador_concluida
     return render(request,'todos_jobs.html',{'solicitacoes':solicitacoes_com_demandas_do_usuario,'usuario':cargo_do_usuario_logado,'superiores':usuarios_com_perfil_menor_que_2,'cargo':cargo})
 
 def backlogUserAll(request):

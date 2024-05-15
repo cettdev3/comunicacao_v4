@@ -22,26 +22,24 @@
                 <div class="col-12">
                     <div class="page-title-box justify-content-between d-flex align-items-lg-center flex-lg-row flex-column">     
                         <h4 class="page-title">Meus Jobs</h4>
-                        <ol class="breadcrumb m-0">
-                            <a href="/jobs-individual" type="button" class="btn btn-info"><i class="ri-file-search-line me-1"></i> <span>Pesquisar Job</span> </a>
-                        </ol>
+                      
                     </div>
-                    
+                  
                 </div>
-
                 <div class="col-6">
                     {% if usuario.cargo <= 2 %}
-                    <label>Buscar por usuário:</label>
+                    <label>Buscar por Gerente/Cordenador:</label>
                     <select class="form-control select2 col-6" data-toggle="select2" name="usuario_backlog" id="usuario_backlog" onchange="demand()">
-                        {% for usuario in usuarios %}
-                        <option value="{{usuario.id}}" {% if usuario.id == request.user.id %} selected {% endif %}>{{usuario.first_name}}</option>
+                        <option value="0" selected>Todos</option>
+                        {% for superior in superiores %}
+                        <option value="{{superior.id}}" {% if usuario.id == request.user.id %} selected {% endif %}>{{superior.first_name}}</option>
                         {% endfor %}
                     </select>
                     {% endif %}
                 </div>
                 <div class="col-6" id="demandas">
                     {% if usuario.cargo <= 2 %}
-                    <label>Buscar por Job:</label>
+                    <label>Buscar Por Job:</label>
                     <select class="form-control select2 col-6" data-toggle="select2" name="demanda_backlog" id="demanda_backlog" onchange="backlog()">
                         <option value="0" >Todos</option>
                         {% for solicitacao in solicitacoes %}
@@ -51,7 +49,7 @@
                     {% endif %}
                 </div>
             </div>     
-
+            
             <div class="row mt-2" id="backlog" >
                 <div class="col-12">
                     <div class="board">
@@ -61,7 +59,7 @@
                             <div id="task-list-one" class="task-list-items">
 
                                 {% for solicitacao in solicitacoes %}
-                                    {% if solicitacao.demandas_coordenador_pendente == 1%}
+                                    {% if solicitacao.demandas_concluidas == 0 and solicitacao.demandas_em_aprovacao == 0 %}
                                         <div class="card mb-0" task_id="1">
                                             <div class="card-body p-3">
                                             <span class="float-end badge bg-success-subtle text-success"><b>Prazo: {{ solicitacao.prazo_entrega|date:"d/m/Y" }}</b></span>
@@ -79,7 +77,6 @@
                                                   
                                                 </p>
 
-
                                             
 
                                                 <div class="avatar-group mt-2">
@@ -96,7 +93,6 @@
                                     {% endif %}
                                 {% endfor %}
                                 
-                                
                             </div> <!-- end company-list-1-->
                         </div>
 
@@ -106,7 +102,8 @@
                             <div id="task-list-two" class="task-list-items">
                                 {% for solicitacao in solicitacoes %}
                                                             
-                                    {% if solicitacao.demandas_coordenador_pendente == 0 and solicitacao.demandas_em_aprovacao == 0 %}
+
+                                    {% if solicitacao.demandas_em_aprovacao_solicitacao > 0 or solicitacao.demandas_concluidas > 0 and solicitacao.demandas_concluidas < solicitacao.total_demandas %}
                                         <div class="card mb-0" task_id="1">
                                             <div class="card-body p-3">
                                             <span class="float-end badge bg-success-subtle text-success"><b>Prazo: {{ solicitacao.prazo_entrega|date:"d/m/Y" }}</b></span>
@@ -119,7 +116,7 @@
                                                 <p class="mb-0">
                                                     <span class="pe-2 text-nowrap mb-2 d-inline-block">
                                                         <i class=" ri-group-fill text-muted"></i>
-                                                        {{solicitacao.demandas_concluidas}}/{{solicitacao.total_demandas}} {% if solicitacao.ultima_atualizacao %} <span style="margin-left: 5px;" class="float-end badge bg-warning-subtle text-warning"><i class="ri-alert-fill text-warning"></i> Alteração no Briefing</span> {% endif %}
+                                                        {{solicitacao.demandas_concluidas}}/{{solicitacao.total_demandas}} {% if solicitacao.ultima_atualizacao %} <span style="margin-left: 5px;" class="float-end badge bg-warning-subtle text-warning"><i class="ri-alert-fill text-warning"></i> Alteração no Briefing</span> {% endif %} 
                                                     </span>
                                                     <!-- <span class="text-nowrap mb-2 d-inline-block">
                                                         <i class="ri-discuss-line text-muted"></i>
@@ -140,100 +137,53 @@
                                                 </div>
                                             </div>
                                         </div>
-                                        {% endif %}
+                                    {% endif %}
                                 {% endfor %}
-                            
 
                             </div> <!-- end company-list-2-->
                         </div>
 
-                        <div class="tasks">
-                            <h5 class="mt-0 task-header text-uppercase">Em Aprovação</h5>
-                            <div id="task-list-three" class="task-list-items">
-
-                                {% for solicitacao in solicitacoes %}
-                            
-                                    {% if solicitacao.demandas_em_aprovacao > 0 and solicitacao.demandas_coordenador_pendente == 0 %}
-                                            <div class="card mb-0" task_id="1">
-                                                <div class="card-body p-3">
-                                                <span class="float-end badge bg-success-subtle text-success"><b>Prazo: {{ solicitacao.prazo_entrega|date:"d/m/Y" }}</b></span>
-                                                    <small class="text-muted"></small>
-
-                                                    <h5 class="my-2 fs-16">
-                                                        <a href="#" onclick="modalTaskView('{{solicitacao.id}}')"  class="text-body">{{ solicitacao.titulo }}</a>
-                                                    </h5>
-
-                                                    <p class="mb-0">
-                                                        <span class="pe-2 text-nowrap mb-2 d-inline-block">
-                                                            <i class=" ri-group-fill text-muted"></i>
-                                                            {{solicitacao.demandas_concluidas}}/{{solicitacao.total_demandas}} {% if solicitacao.ultima_atualizacao %} <span style="margin-left: 5px;" class="float-end badge bg-warning-subtle text-warning"><i class="ri-alert-fill text-warning"></i> Alteração no Briefing</span> {% endif %}
-                                                        </span>
-                                                        <!-- <span class="text-nowrap mb-2 d-inline-block">
-                                                            <i class="ri-discuss-line text-muted"></i>
-                                                            <b>2</b> Comentários
-                                                        </span> -->
-                                                    </p>
-
-                                                
-
-                                                    <div class="avatar-group mt-2">
-                                                        <a href="javascript: void(0);" class="avatar-group-item"
-                                                            data-bs-toggle="tooltip" data-bs-placement="top"
-                                                            title="{{solicitacao.autor.first_name}}">
-                                                            <img src="{% static 'layouts/assets/images/users/avatar-1.jpg' %}" alt=""
-                                                                class="rounded-circle avatar-xs"> <span style="color:gray"> {{solicitacao.autor.first_name}}</span>
-                                                        </a>
-                                                    
-                                                    </div>
-                                                </div>
-                                            </div>
-                                    {% endif %}
-                                {% endfor %}
-
-                            </div> <!-- end company-list-3-->
-                        </div>
+                     
 
                         <div class="tasks">
                             <h5 class="mt-0 task-header text-uppercase">Concluído </h5>
                             <div id="task-list-three" class="task-list-items">
-
                                 {% for solicitacao in solicitacoes %}
                                 
                                     {% if solicitacao.total_demandas == solicitacao.demandas_concluidas %}
-                                    
-                                    <div class="card mb-0" task_id="1">
-                                        <div class="card-body p-3">
-                                        <span class="float-end badge bg-success-subtle text-success"><b>Prazo: {{ solicitacao.prazo_entrega|date:"d/m/Y" }}</b></span>
-                                            <small class="text-muted"></small>
+                                        <div class="card mb-0" task_id="1">
+                                            <div class="card-body p-3">
+                                            <span class="float-end badge bg-success-subtle text-success"><b>Prazo: {{ solicitacao.prazo_entrega|date:"d/m/Y" }}</b></span>
+                                                <small class="text-muted"></small>
 
-                                            <h5 class="my-2 fs-16">
-                                                <a href="#" onclick="modalTaskView('{{solicitacao.id}}')"  class="text-body">{{ solicitacao.titulo }}</a>
-                                            </h5>
+                                                <h5 class="my-2 fs-16">
+                                                    <a href="#" onclick="modalTaskView('{{solicitacao.id}}')"  class="text-body">{{ solicitacao.titulo }}</a>
+                                                </h5>
 
-                                            <p class="mb-0">
-                                                <span class="pe-2 text-nowrap mb-2 d-inline-block">
-                                                    <i class=" ri-group-fill text-muted"></i>
-                                                    {{solicitacao.demandas_concluidas}}/{{solicitacao.total_demandas}} {% if solicitacao.ultima_atualizacao %} <span style="margin-left: 5px;" class="float-end badge bg-warning-subtle text-warning"><i class="ri-alert-fill text-warning"></i> Alteração no Briefing</span> {% endif %}
-                                                </span>
-                                                <!-- <span class="text-nowrap mb-2 d-inline-block">
-                                                    <i class="ri-discuss-line text-muted"></i>
-                                                    <b>2</b> Comentários
-                                                </span> -->
-                                            </p>
+                                                <p class="mb-0">
+                                                    <span class="pe-2 text-nowrap mb-2 d-inline-block">
+                                                        <i class=" ri-group-fill text-muted"></i>
+                                                        {{solicitacao.demandas_concluidas}}/{{solicitacao.total_demandas}} {% if solicitacao.ultima_atualizacao %} <span style="margin-left: 5px;" class="float-end badge bg-warning-subtle text-warning"><i class="ri-alert-fill text-warning"></i> Alteração no Briefing</span> {% endif %} 
+                                                    </span>
+                                                    <!-- <span class="text-nowrap mb-2 d-inline-block">
+                                                        <i class="ri-discuss-line text-muted"></i>
+                                                        <b>2</b> Comentários
+                                                    </span> -->
+                                                </p>
 
-                                        
-
-                                            <div class="avatar-group mt-2">
-                                                <a href="javascript: void(0);" class="avatar-group-item"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="{{solicitacao.autor.first_name}}">
-                                                    <img src="{% static 'layouts/assets/images/users/avatar-1.jpg' %}" alt=""
-                                                        class="rounded-circle avatar-xs"> <span style="color:gray"> {{solicitacao.autor.first_name}}</span>
-                                                </a>
                                             
+
+                                                <div class="avatar-group mt-2">
+                                                    <a href="javascript: void(0);" class="avatar-group-item"
+                                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="{{solicitacao.autor.first_name}}">
+                                                        <img src="{% static 'layouts/assets/images/users/avatar-1.jpg' %}" alt=""
+                                                            class="rounded-circle avatar-xs"> <span style="color:gray"> {{solicitacao.autor.first_name}}</span>
+                                                    </a>
+                                                
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
                                     {% endif %}
                                 {% endfor %}
 
@@ -373,10 +323,33 @@ function showSelectedFilesDinamic(n) {
     }
 }
 
+function backlog(){
+    usuario = document.getElementById('usuario_backlog').value;
+    const url = '/ajax/backlog-user';
+
+    $.ajax({
+        url,
+        type: 'GET',
+        data: { 'usuario': usuario },
+        success: function(data) {
+            $("#backlog").html(data);
+            
+        },
+        error: function(xhr, status, error) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Ops!',
+                text: 'Não foi possível obter resultados!'
+            });
+        }
+    });
+}
+
+
 function demand(){
     var usuario_backlog =  document.getElementById('usuario_backlog').value;
 
-    const url = '/ajax/show-tasks-for-user';
+    const url = '/ajax/show-tasks-for-user-all';
 
     $.ajax({
         url,
@@ -400,7 +373,7 @@ function demand(){
 function backlog(){
     usuario = document.getElementById('usuario_backlog').value;
     demanda =  document.getElementById('demanda_backlog').value;
-    const url = '/ajax/backlog-user';
+    const url = '/ajax/backlog-user-all';
 
     $.ajax({
         url,
@@ -422,7 +395,7 @@ function backlog(){
 
 function resetUser(){
     usuario = document.getElementById('usuario_backlog').value;
-    const url = '/ajax/backlog-user';
+    const url = '/ajax/backlog-user-all';
 
     $.ajax({
         url,

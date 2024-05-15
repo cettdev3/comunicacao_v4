@@ -60,11 +60,23 @@ def Show_Modal_Task(request):
     #obtenho a quantidade de demandas que não estão concluidas
     demandas_nao_concluidas = Demandas.objects.filter(solicitacao = solicitacao, status__lt = 4).count()
 
-    usuarios = User.objects.all()
+    
+    usuarios = User.objects.exclude(perfil__cargo=2)
+
     demandas = Demandas.objects.filter(solicitacao = solicitacao).all()
+
+    #pego as demandas e obtenho todos os usuários designados
+    usuarios_demanda = []
+    for demanda in demandas:
+        if demanda.designante_id not in usuarios_demanda:
+            usuarios_demanda.append(demanda.designante_id)
+        
+    
+
+
     for demanda in demandas:
         demanda.demandas_arquivos = Arquivos_Demandas.objects.filter(demanda = demanda).all()
-    return render(request,'ajax/ajax_task_detail.html',{'solicitacao':solicitacao,'demandas':demandas,'arquivos_solicitacao':arquivos_solicitacao,'pastas':pastas,'gerentes':gerentes,'usuario_logado':usuario_logado,'usuarios':usuarios,'demandas_pendentes':demandas_nao_concluidas})	
+    return render(request,'ajax/ajax_task_detail.html',{'solicitacao':solicitacao,'demandas':demandas,'arquivos_solicitacao':arquivos_solicitacao,'pastas':pastas,'gerentes':gerentes,'usuario_logado':usuario_logado,'usuarios':usuarios,'demandas_pendentes':demandas_nao_concluidas,'usuarios_demanda':usuarios_demanda})	
 
 @login_required(login_url='/')
 def Concluir_Demanda(request):
