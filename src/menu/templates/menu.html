@@ -381,7 +381,7 @@
                         <li class="side-nav-item">
                             <a href="/meus-jobs" class="side-nav-link">
                                 <i class="ri-list-check-3"></i> 
-                                <span> Meus Jobs</span>
+                                <span> {% if cargo == 2 %} Verificar Pauta {% else %} Meus Jobs {% endif %}</span>
                             </a>
                         </li>
                         {% if cargo <= 2 %}

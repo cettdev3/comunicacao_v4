@@ -43,6 +43,9 @@ def All_Jobs(request):
         #Obtem a demanda do coordenador concluida
         demandas_coordenador_concluida = demandas_do_usuario.filter(descricao_entrega="Revisão da demanda",solicitacao_id=solicitacao.id,status=4).count()
 
+        #Obtem o total de demandas com valor de 1 em gerencia
+        demandas_gerencia = demandas_do_usuario.filter(gerencia = 1).count()
+
         # Adiciona os totais à solicitação
         solicitacao.total_demandas = total_demandas_solicitacao
         solicitacao.demandas_concluidas = demandas_concluidas_solicitacao
@@ -50,6 +53,7 @@ def All_Jobs(request):
         solicitacao.demandas_a_fazer = demandas_a_fazer
         solicitacao.demandas_coordenador_pendente = demandas_coordenador_pendente
         solicitacao.demandas_coordenador_concluida = demandas_coordenador_concluida
+        solicitacao.demandas_gerencia = demandas_gerencia
     return render(request,'todos_jobs.html',{'solicitacoes':solicitacoes_com_demandas_do_usuario,'usuario':cargo_do_usuario_logado,'superiores':usuarios_com_perfil_menor_que_2,'cargo':cargo})
 
 def backlogUserAll(request):

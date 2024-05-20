@@ -127,6 +127,7 @@
                                                         </div> <!-- end card-body-->
                                                     </div>
                                                 </div>
+                                                {% if cargo == 2 %}
                                                 <div class="col-12 mb-3 mt-3">
                                                     <h4 class="card-title text-dark"><i class="ri-folder-2-fill"></i> Cadastrar Pasta <button onclick="adicionarCampo()" style="float: right;" type="button" class="btn btn-dark btn-sm"><i class="ri-folder-2-fill"></i> <span>Adicionar Pasta</span> </button></h4> <hr>
                                                     
@@ -164,25 +165,30 @@
                                                     <div class="row" id="fileDisplay"></div>
                                                 </div>
 
-                                                <div class="col-12 mb-2">
+                                                <div class="col-12">
                                                     <label for="fileInput" class="btn btn-info" style="width: 100%;">
                                                         <i class="ri-upload-cloud-line me-1"></i> Anexar Arquivos
                                                       </label>
                                                    
                                                 </div> 
                                                
-                                                <div class="col-12  mb-2">
-                                                    <button onclick="alteraSolicitacao('{{solicitacao.id}}')" style="width: 100%;" type="button" class="btn btn-info"><i class="ri-rocket-line me-1"></i> <span>Alterar Solicitação</span> </button>
-                                                </div>
+                                                <!-- <div class="col-12 mb-2">
+                                                    <button onclick="alteraSolicitacao('{{solicitacao.id}}')" style="width: 100%;" type="button" class="btn btn-info"><i class="ri-rocket-line me-1"></i> <span>Alterar Solicitação / Adicionar Demandas</span> </button>
+                                                </div> -->
 
                                                 {% if demandas_pendentes == 1 %}
                                                 <div class="col-12">
                                                     <button onclick="finalizarJob('{{solicitacao.id}}')" style="width: 100%;" type="button" class="btn btn-success"><i class=" ri-checkbox-circle-line me-1"></i> <span>Finalizar Job</span> </button>
                                                 </div>
                                                 {% endif %}
+
+                                                {% endif %}
                                             </div>
                                             </li>
-                
+                                            
+                                                <div class="col-12">
+                                                    <button onclick="RevisaoJob('{{cargo}}', '{{solicitacao.id}}')" style="width: 100%;" type="button" class="btn btn-danger"><i class=" ri-exchange-fill me-1"></i> <span>Solicitar Revisão</span> </button>
+                                                </div>
                                             </form>
                                     </div>
 
@@ -311,18 +317,18 @@
                                                     {% if demanda.autor_id == request.user.id and demanda.status == 3 and demanda.gerencia == 0 %}
                                                     <div class="row mb-3">
                                                         
-                                                        <div class="col-6"></div>
+                                                        <div class="col-9"></div>
                                                         <div class="col-3"><button onclick="enviaAprovacao('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-checkbox-circle-line"></i> <span>Enviar P/Aprovação</span> </button></div>
-                                                        <div class="col-3" ><button onclick="revisaoDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-exchange-fill"></i> <span>Solicitar Revisão</span> </button></div>
+                                                        <!-- <div class="col-3" ><button onclick="revisaoDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-exchange-fill"></i> <span>Solicitar Revisão</span> </button></div> -->
                                                     </div>
                                                     {% endif %}
 
                                                     {% if usuario_logado.cargo == 1 and demanda.status == 3 and demanda.gerencia == 1 %}
                                                     <div class="row mb-3">
                                                         
-                                                        <div class="col-4" ></div>
+                                                        <div class="col-8" ></div>
                                                         <div class="col-4"><button onclick="ConcluirDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-checkbox-circle-line"></i> <span>Aprovar Demanda</span> </button></div>
-                                                        <div class="col-4" ><button onclick="revisaoDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-exchange-fill"></i> <span>Devolver para Cordenador</span> </button></div>
+                                                        <!-- <div class="col-4" ><button onclick="revisaoDemanda('{{demanda.id}}')" style="width: 100%;" type="button" class="btn btn-dark btn-sm"><i class="ri-exchange-fill"></i> <span>Devolver para Cordenador</span> </button></div> -->
                                                     </div>
                                                     {% endif %}
                                                     
@@ -373,6 +379,82 @@
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 <script>
 
+function RevisaoJob(cargo,solicitacaoID){
+    var XCSRFToken = '{{ csrf_token }}';
+    var form = document.getElementById("form_alteracao");
+    var formData = new FormData(form)
+    
+    //Verifico se o text area briefing está vazio, se tiver exibo um alerta 
+    var textarea = document.getElementById("briefing").value;
+
+    formData.append('motivo', textarea);
+    formData.append('cargo', cargo);
+    formData.append('solicitacao_id', solicitacaoID);
+
+    if(textarea == ""){
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Justifique a revisão no briefing!'
+        })
+        return false;
+    }else{
+        Swal.fire({
+        title: 'Solicitar Revisão',
+        text: 'Deseja realmente devolver esta solicitação para o cordenador?',
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sim',
+        cancelButtonText: 'Não'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            const url = "/ajax/revisa-job";
+
+           
+            
+            // Use a função $.ajax do jQuery para fazer a solicitação AJAX
+            $.ajax({
+                url: url,
+                type: "POST",
+                data: formData,
+                headers: { "X-CSRFToken": XCSRFToken },
+                processData: false,  // Não processar os dados (o FormData já cuida disso)
+                contentType: false,  // Não definir o tipo de conteúdo (o FormData já cuida disso)
+                success: function (data) {
+                    
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Job Devolvido ao Coordenador!',
+                        text: "O Job foi devolvido com sucesso!",
+                    }).then((result) => {
+                        // Ação a ser realizada após o botão "OK" ser clicado
+                        if (result.isConfirmed) {
+                            location.reload();
+                           
+                           
+                        }
+                    });                                                                                                                                                                            
+                },
+                error: function (data) {
+                    console.log(data)
+                    if (data.responseJSON && data.responseJSON.error_message) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Ops!',
+                            text: data.responseJSON.error_message
+                        });
+                    }
+                }
+            });
+        }
+    });
+    }
+
+    
+}
+
 function AprovarDemanda(demanda_id){
     var XCSRFToken = '{{ csrf_token }}';
     Swal.fire({
@@ -404,7 +486,7 @@ function AprovarDemanda(demanda_id){
                     }).then((result) => {
                         // Ação a ser realizada após o botão "OK" ser clicado
                         if (result.isConfirmed) {
-                            window.location.href = 'meus-jobs';
+                            window.location.href = 'gerir-time';
                            
                         }
                     });
@@ -767,7 +849,7 @@ function concluirDemanda(demandaId,formulario,files){
                     }).then((result) => {
                         // Ação a ser realizada após o botão "OK" ser clicado
                         if (result.isConfirmed) {
-                            window.location.href = 'meus-jobs';
+                            window.location.reload();
                            
                         }
                     });
@@ -833,7 +915,7 @@ function devolverDemanda(demanda_id){
                     }).then((result) => {
                         // Ação a ser realizada após o botão "OK" ser clicado
                         if (result.isConfirmed) {
-                            window.location.href = 'meus-jobs';
+                            window.location.reload();
                            
                         }
                     });
@@ -880,7 +962,7 @@ function ConcluirDemanda(demandaId){
                     }).then((result) => {
                         // Ação a ser realizada após o botão "OK" ser clicado
                         if (result.isConfirmed) {
-                            window.location.href = 'meus-jobs';
+                            window.location.reload();
                            
                         }
                     });
@@ -1013,7 +1095,7 @@ function finalizarJob(solicitacao_id){
                     }).then((result) => {
                         // Ação a ser realizada após o botão "OK" ser clicado
                         if (result.isConfirmed) {
-                            window.location.href = 'meus-jobs';
+                            window.location.reload();
                            
                         }
                     });
@@ -1032,4 +1114,6 @@ function finalizarJob(solicitacao_id){
         }
     });
 }
+
+
 </script>

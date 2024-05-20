@@ -60,6 +60,11 @@ def Show_Modal_Task(request):
     #obtenho a quantidade de demandas que não estão concluidas
     demandas_nao_concluidas = Demandas.objects.filter(solicitacao = solicitacao, status__lt = 4).count()
 
+    #obtenho a qtd de demandas em aprovação
+    demandas_em_aprovacao = Demandas.objects.filter(solicitacao = solicitacao, status = 3).count()
+
+    cargo = Perfil.objects.filter(user_profile_id = request.user.id).values('cargo')
+    cargo = cargo[0]['cargo']
     
     usuarios = User.objects.exclude(perfil__cargo=2)
 
@@ -76,7 +81,7 @@ def Show_Modal_Task(request):
 
     for demanda in demandas:
         demanda.demandas_arquivos = Arquivos_Demandas.objects.filter(demanda = demanda).all()
-    return render(request,'ajax/ajax_task_detail.html',{'solicitacao':solicitacao,'demandas':demandas,'arquivos_solicitacao':arquivos_solicitacao,'pastas':pastas,'gerentes':gerentes,'usuario_logado':usuario_logado,'usuarios':usuarios,'demandas_pendentes':demandas_nao_concluidas,'usuarios_demanda':usuarios_demanda})	
+    return render(request,'ajax/ajax_task_detail.html',{'solicitacao':solicitacao,'demandas':demandas,'arquivos_solicitacao':arquivos_solicitacao,'pastas':pastas,'gerentes':gerentes,'usuario_logado':usuario_logado,'usuarios':usuarios,'demandas_pendentes':demandas_nao_concluidas,'usuarios_demanda':usuarios_demanda,'cargo':cargo})	
 
 @login_required(login_url='/')
 def Concluir_Demanda(request):
@@ -220,6 +225,7 @@ def concluirDemanda(request):
             #obtenho a demanda referente a aprovação e marco ela com status de concluido (4)
             demanda = Demandas.objects.get(id=demanda_id)
             demanda.status = 4
+            demanda.gerencia = 0
             demanda.save()
 
             #Conta quantas demandas com status 3 possuim na solicitação
@@ -422,3 +428,66 @@ def showtaskusers(request):
     solicitacoes_com_demandas_do_usuario = Solicitacoes.objects.filter(id__in=demandas_do_usuario.values('solicitacao_id')).distinct()
 
     return render(request,'ajax/select_task_for_user.html',{'demandas':solicitacoes_com_demandas_do_usuario})
+
+@login_required(login_url='/') 
+def revisajob(request):
+    cargo = request.POST.get('cargo','')
+    briefing = request.POST.get('motivo','')
+    solicitacao_id = request.POST.get('solicitacao_id','')
+    usuarios = request.POST.getlist('usuarios')
+    print(request.POST)
+    if cargo == '1':
+        with transaction.atomic():
+            solicitacao = Solicitacoes.objects.get(id=solicitacao_id)
+            briefing_antigo = solicitacao.briefing
+            solicitacao.ultima_atualizacao = datetime.now()
+            data_atual = datetime.now()
+            data_formatada = data_atual.strftime('%d/%m/%Y %H:%M')
+            novo_breafing = f'<hr><b>{data_formatada} - {request.user.first_name}</b><br>{briefing}<br><br>{briefing_antigo}'
+            solicitacao.briefing = novo_breafing
+            solicitacao.save()
+
+            #Reabro a demanda do coordenador
+            demanda_cordenador = Demandas.objects.filter(descricao_entrega="Revisão da demanda",solicitacao_id=solicitacao_id).first()
+            demanda_cordenador.status = 1
+            demanda_cordenador.save()
+
+            #Altero o status da demanda do gerente para concluido
+            demanda_gerente = Demandas.objects.filter(descricao_entrega="Aprovação da demanda",solicitacao_id=solicitacao_id).first()
+            demanda_gerente.status = 4
+            demanda_gerente.save()
+
+            #Pego todas as demandas com status 3 e gerencia 1 e altero a gerencia para 0
+            demandas = Demandas.objects.filter(status = 3, gerencia = 1)
+            for demanda in demandas:
+                demanda.gerencia = 0
+                demanda.save()
+
+            
+            return JsonResponse({"success_message": "Solicitação Alterada!"}, status=200)
+    else:
+        with transaction.atomic():
+            solicitacao = Solicitacoes.objects.get(id=solicitacao_id)
+            briefing_antigo = solicitacao.briefing
+            solicitacao.ultima_atualizacao = datetime.now()
+            data_atual = datetime.now()
+            data_formatada = data_atual.strftime('%d/%m/%Y %H:%M')
+            novo_breafing = f'<hr><b>{data_formatada} - {request.user.first_name}</b><br>{briefing}<br><br>{briefing_antigo}'
+            solicitacao.briefing = novo_breafing
+            solicitacao.save()
+
+            #Percorro os usuários e reabro a demanda de todos 
+            for user in usuarios:
+                demanda_usuario = Demandas.objects.filter(solicitacao_id=solicitacao_id,designante=user).first()
+                demanda_usuario.status = 1
+                demanda_usuario.gerencia = 0
+                demanda_usuario.save()
+
+            #Reabro a demanda do coordenador
+            demanda_cordenador = Demandas.objects.filter(descricao_entrega="Revisão da demanda",solicitacao_id=solicitacao_id).first()
+            demanda_cordenador.status = 4
+            demanda_cordenador.save()
+
+       
+            
+            return JsonResponse({"success_message": "Solicitação Alterada!"}, status=200)
