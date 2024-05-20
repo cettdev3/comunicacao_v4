@@ -68,7 +68,7 @@
                                                 <small class="text-muted"></small>
 
                                                 <h5 class="my-2 fs-16">
-                                                    <a href="#" onclick="modalTaskView('{{solicitacao.id}}')"  class="text-body">{{ solicitacao.titulo }}</a>
+                                                    <a href="#" onclick="modalTaskView('{{solicitacao.id}}')"  class="text-body">{{ solicitacao.titulo }} #{{solicitacao.id}}</a>
                                                 </h5>
 
                                                 <p class="mb-0">
@@ -113,7 +113,7 @@
                                                 <small class="text-muted"></small>
 
                                                 <h5 class="my-2 fs-16">
-                                                    <a href="#" onclick="modalTaskView('{{solicitacao.id}}')"  class="text-body">{{ solicitacao.titulo }}</a>
+                                                    <a href="#" onclick="modalTaskView('{{solicitacao.id}}')"  class="text-body">{{ solicitacao.titulo }} #{{solicitacao.id}}</a>
                                                 </h5>
 
                                                 <p class="mb-0">
@@ -207,9 +207,9 @@
                                         <span class="float-end badge bg-success-subtle text-success"><b>Prazo: {{ solicitacao.prazo_entrega|date:"d/m/Y" }}</b></span>
                                             <small class="text-muted"></small>
 
-                                            <h5 class="my-2 fs-16">
-                                                <a href="#" onclick="modalTaskView('{{solicitacao.id}}')"  class="text-body">{{ solicitacao.titulo }}</a>
-                                            </h5>
+                                                <h5 class="my-2 fs-16">
+                                                    <a href="#" onclick="modalTaskView('{{solicitacao.id}}')"  class="text-body">{{ solicitacao.titulo }}</a>
+                                                </h5>
 
                                             <p class="mb-0">
                                                 <span class="pe-2 text-nowrap mb-2 d-inline-block">
@@ -224,17 +224,17 @@
 
                                         
 
-                                            <div class="avatar-group mt-2">
-                                                <a href="javascript: void(0);" class="avatar-group-item"
-                                                    data-bs-toggle="tooltip" data-bs-placement="top"
-                                                    title="{{solicitacao.autor.first_name}}">
-                                                    <img src="{% static 'layouts/assets/images/users/avatar-1.jpg' %}" alt=""
-                                                        class="rounded-circle avatar-xs"> <span style="color:gray"> {{solicitacao.autor.first_name}}</span>
-                                                </a>
-                                            
+                                                <div class="avatar-group mt-2">
+                                                    <a href="javascript: void(0);" class="avatar-group-item"
+                                                        data-bs-toggle="tooltip" data-bs-placement="top"
+                                                        title="{{solicitacao.autor.first_name}}">
+                                                        <img src="{% static 'layouts/assets/images/users/avatar-1.jpg' %}" alt=""
+                                                            class="rounded-circle avatar-xs"> <span style="color:gray"> {{solicitacao.autor.first_name}}</span>
+                                                    </a>
+                                                
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
                                     {% endif %}
                                 {% endfor %}
 
